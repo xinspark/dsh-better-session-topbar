@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Barra superior de sesión mejorada",
+    "description": "Sustituye el título de la sesión en la barra superior por una ruta «espacio de trabajo / sesión», con cambio directo, fijado, bifurcación y archivo; en pantallas estrechas puede mostrarse la ruta o el título de la sesión."
+  }
+}

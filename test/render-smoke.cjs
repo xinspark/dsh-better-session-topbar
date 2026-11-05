@@ -126,13 +126,107 @@ function itemsOf(lists, firstId) {
   return found
 }
 
+// 找返回树里指定 type 的元素（用于设置页的求星提示行）
+function collectType(node, type, out = []) {
+  if (node === null || typeof node !== 'object') return out
+  if (Array.isArray(node)) {
+    for (const kid of node) collectType(kid, type, out)
+    return out
+  }
+  if (node.type === type) out.push(node)
+  if (Array.isArray(node.kids)) {
+    for (const kid of node.kids) collectType(kid, type, out)
+  }
+  return out
+}
+
+// 收集返回树里的文本节点（断言求星提示确实带文案）
+function collectText(node, out = []) {
+  if (typeof node === 'string') {
+    if (node.trim() !== '') out.push(node)
+    return out
+  }
+  if (node === null || typeof node !== 'object') return out
+  if (Array.isArray(node)) {
+    for (const kid of node) collectText(kid, out)
+    return out
+  }
+  if (Array.isArray(node.kids)) {
+    for (const kid of node.kids) collectText(kid, out)
+  }
+  return out
+}
+
+// ---- 语言字典一致性（工程门：键集、值非空、页面覆盖、meta 文件） ----------------
+function dictEntries(source, name) {
+  const start = source.indexOf('const ' + name + ' = {')
+  if (start < 0) throw new Error('dictionary not found: ' + name)
+  const end = source.indexOf('\n    }', start)
+  if (end < 0) throw new Error('dictionary not terminated: ' + name)
+  const block = source.slice(start, end)
+  return [...block.matchAll(/'([\w.]+)':\s*(?:'([^']*)'|"([^"]*)")/g)]
+    .map((m) => ({ key: m[1], value: m[2] !== undefined ? m[2] : m[3] }))
+}
+function dictKeys(source, name) {
+  return new Set(dictEntries(source, name).map((entry) => entry.key))
+}
+
+const sameKeys = (a, b) => a.size === b.size && [...a].every((key) => b.has(key))
+{
+  const languages = ['BST_ZH', 'BST_EN', 'BST_JA', 'BST_DE', 'BST_ES', 'BST_FR', 'BST_PT', 'BST_RU']
+  const zh = dictKeys(src, 'BST_ZH')
+  const en = dictKeys(src, 'BST_EN')
+  if (!sameKeys(zh, en)) throw new Error('BST_ZH / BST_EN key sets diverge')
+  // 设置页引用的每一个 settings.* 键都必须在 zh/en 里存在
+  const pageKeys = new Set([...src.matchAll(/'(settings\.[A-Za-z]+)'/g)].map((m) => m[1]))
+  for (const key of pageKeys) {
+    if (!zh.has(key)) throw new Error('settings page key missing from BST_ZH: ' + key)
+  }
+  // 8 本字典键集完全一致（官方包的约定：每种语言同一套键）
+  for (const name of languages.slice(2)) {
+    if (!sameKeys(dictKeys(src, name), zh)) {
+      throw new Error(name + ' must carry the same key set as BST_ZH')
+    }
+  }
+  // 任何一本字典都不允许空值；en 字典不得含 CJK（官方约定）
+  for (const name of languages) {
+    for (const entry of dictEntries(src, name)) {
+      if (entry.value.trim() === '') throw new Error(name + ' has an empty value: ' + entry.key)
+    }
+  }
+  const enText = dictEntries(src, 'BST_EN').map((entry) => entry.value).join('\n')
+  if (/[\u3400-\u9fff]/.test(enText)) throw new Error('BST_EN must not contain CJK')
+  // 每种语言的包 meta（插件列表/详情页标题与描述）都要存在且非空
+  const locales = ['zh', 'en', 'ja', 'de', 'es', 'fr', 'pt', 'ru']
+  let enMeta = null
+  for (const lang of locales) {
+    const file = path.join(__dirname, '..', 'locale', lang + '.json')
+    const meta = JSON.parse(fs.readFileSync(file, 'utf8'))
+    if (!meta.meta || typeof meta.meta.title !== 'string' || meta.meta.title.trim() === '') {
+      throw new Error('locale meta title missing: ' + lang)
+    }
+    if (typeof meta.meta.description !== 'string' || meta.meta.description.trim() === '') {
+      throw new Error('locale meta description missing: ' + lang)
+    }
+    if (lang === 'en') enMeta = meta
+  }
+  if (/[\u3400-\u9fff]/.test(enMeta.meta.title + enMeta.meta.description)) {
+    throw new Error('en locale meta must not contain CJK')
+  }
+}
+
 // ---- 场景一：宿主有 contextMenus → 行尾「⋯」挂上原生菜单目标 --------------
 {
   const { registered, list } = boot({ withMenus: true, withData: true })
   const settings = registered.find((r) => r.options && r.options.name === 'plugins.row.config')
   if (!settings) throw new Error('settings slot not registered')
-  if (!settings.Comp({ view: 'page' }) || !settings.Comp({ view: 'summary' })) {
-    throw new Error('settings page returned nothing')
+  const page = settings.Comp({ view: 'page' })
+  const summary = settings.Comp({ view: 'summary' })
+  if (!page || !summary) throw new Error('settings page returned nothing')
+  const starLine = collectType(page, 'p').find((node) => node.props.className === 'bst-star-line')
+  if (!starLine) throw new Error('settings page lost the star line')
+  if (collectText(starLine).join(' ').trim() === '') {
+    throw new Error('star line has no text')
   }
   const lists = collectLists(renderCrumb(registered, list))
   const ws = itemsOf(lists, 'add')

@@ -1,0 +1,27 @@
+name: 功能建议
+description: 提出一个改进或新功能
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你遇到的问题
+      description: 先描述场景，再说方案
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 期望的方案
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 考虑过的替代方案
+      description: 包括「为什么不用 DSH 自带能力 / 现成插件」
+  - type: textarea
+    id: impact
+    attributes:
+      label: 影响面
+      description: 是否涉及原生 DOM 装饰、宿主服务依赖、老内核降级或已发布行为

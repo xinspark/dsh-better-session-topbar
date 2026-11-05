@@ -10,6 +10,8 @@
 2. **跟随 DSH 版本**：本地 DSH 实例（DSH NEXT / DSH 原生桌面 / `dsh` CLI）升级后，判断插件是否需要适配或升版本，按 `lib/client.js` 顶部的「DSH 升级维护清单」逐类核对。
 3. **插件市场提交**：插件发版后同步市场条目。
 
+**私有材料**：路线图 / 待办 / 决策记录 / 调研 / 本机环境 / 发版清单放 `docs-private/`（只有 `README.md` 入库，其余被 `.gitignore` 排除）；结论稳定后升级为 `docs/` 的公开文档。公开目录见 [docs/README.md](docs/README.md)。
+
 ## 2. 硬规则
 
 - **维护窗口：每天 21:00（Asia/Shanghai）**。窗口外只做本地准备，不做对外动作。
@@ -19,6 +21,7 @@
   - 向插件市场（`awesome-dsh-plugin/awesome-dsh-plugin`）提 PR 或改条目；
   - 任何第三方仓库上的写操作。
 - **不需要批准的本地动作**：读代码与远端资料、跑校验、改代码、本地 commit、本地 tag、写草稿/报告。
+- **文档门**：`npm test` 里包含 `tools/check-docs.mjs`（公开文档的相对链接与锚点）；新增/移动文档必须让门通过。公开文档结构见 [docs/README.md](docs/README.md)，本文件是维护者手册。
 - **已记录的授权**：2026-10-28 所有者明确指示「完全改名」，据此执行了 `gh repo rename`（`dsh-better-session-title` → `dsh-better-session-topbar`）及随之的推送与 Release；其余对外动作仍逐项批准。
 
 ## 3. 每日 21:00 检查清单
@@ -40,7 +43,7 @@
    - 一次性配置（已完成，2026-10-29）：npm 包页面 → Settings → Trusted Publisher → GitHub Actions，`xinspark` / `dsh-better-session-topbar` / `publish.yml`，并勾选「Allow npm publish」。
    - **发完要复核** `dist-tags.latest`：registry 有约 1–2 分钟处理延迟，CI 打出 `+ pkg@version` 不等于立刻可查。
    - 历史遗留：`0.0.0-stage` 占位版本（staged publishing 产物），不影响 `latest`。
-   - 旧的 token 方式已不再使用：账号 2FA 只有安全密钥、无法出 6 位码，命令行发布必被 EOTP 拦。
+   - 旧的命令行 token 发布已停用（账号安全策略不允许），发版一律走 Trusted Publishing。
 
 ## 5. 插件市场说明
 
@@ -61,27 +64,17 @@
 - [ ] **市场条目描述加产品名前缀**（2026-10-29）：搜索「更好的会话顶栏 / Better Session Topbar」找不到条目——原描述以「把会话顶栏标题换成…」开头，从没出现过产品名。已把中英描述都加上前缀（`更好的会话顶栏：` / `Better Session Topbar: `），两个 README 用 `generate-readme.mjs` 重新生成，只动本条目。分支 `update/topbar-description-prefix`（提交 `09aecdb`）已推到 fork，**PR 已开：[#10234](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/10234)**（`gh pr create` 仍 403，用浏览器代开）。等上游合并即可。
 - [x] **npm 页面 README 已刷新**（2026-10-29，随 1.5.2）：包内 README 现在写的是「npm 优先、GitHub 等价」，CHANGELOG 也补上了「上架 npm」那条。1.5.1 的包内快照是发布早于文档更新造成的，已随新版本自然消解。
 - [x] **v1.5.3 发布**（2026-10-29）：**修复三级面包屑**在窄顶栏下的三处显示问题（文字溢出、分隔符被压没、末级箭头被裁），代码层面只动 CSS 约束。tag `v1.5.3` → `2e8463e`；Release <https://github.com/xinspark/dsh-better-session-topbar/releases/tag/v1.5.3>；**npm 由 GitHub Actions 首次以 Trusted Publishing 完成发布**（run 40782810320，success，带 provenance），`dist-tags.latest = 1.5.3`。
-- [x] **npm 改为 Trusted Publishing**（2026-10-29）：新增 `.github/workflows/publish.yml`（`release: published` + `workflow_dispatch`，`id-token: write`，跑 `npm test` 后 `npm publish --provenance`）；npm 包页面已配好信任发布者（GitHub Actions / xinspark / dsh-better-session-topbar / publish.yml，勾了 Allow npm publish）。**从此发版不再需要任何 token**，也绕开了「只有安全密钥、出不了 6 位码」的死结。
-- [x] **npm 令牌清理 + 2FA 恢复**（2026-10-29）：发布用的 `publish-topbar-1.5.1`（Bypass 2FA）与旧的 `Agent` 都已在网页删除；所有者随后新建了一个**不勾 Bypass**的 Read/Write token 放进维护台（`NPM_TOKEN`，实测 `whoami → xinspark`），账号现共存这 1 个。账号级「Require two-factor authentication for write actions」已勾回。该 token 现在只用于维护器的只读查询；发版已改走 Trusted Publishing。
-- [x] **`0.0.0-stage` 占位版本 —— 已知遗留，决定不处理**（2026-10-29，所有者决定）：staged publishing 首次发布留下的空壳，不在 `latest` 上、`dsh plugin add` 永远装到 1.5.2，**不影响安装与运行**。删它的门槛：需要「非 Bypass」token，且必须在「写入操作要求 2FA」关闭的窗口内（否则要 6 位码，而账号只有安全密钥）；本次已试到 WebAuthn 认证环节（`Something went wrong`），所有者选择保留。以后若要清，按这个顺序做一次即可：临时关写入 2FA → 新建不勾 Bypass 的 Read/Write token → `npm unpublish dsh-better-session-topbar@0.0.0-stage` → 删 token → 勾回 2FA。
+- [x] **npm 改为 Trusted Publishing**（2026-10-29）：新增 `.github/workflows/publish.yml`（`release: published` + `workflow_dispatch`，`id-token: write`，跑 `npm test` 后 `npm publish --provenance`）；npm 包页面已配好 Trusted Publisher（细节见私有环境记录）。**从此发版不再需要任何 token**。
+- [x] **npm 令牌清理 + 2FA 恢复**（2026-10-29）：发布用的旧 token 已删除，账号级「写入操作要求 2FA」已勾回；发版走 Trusted Publishing，不再依赖命令行 token。**具体令牌名、账号操作与恢复步骤属运维细节，记录在本机私有文档（`docs-private/env/accounts.md`），不写进公开文档。**
+- [x] **`0.0.0-stage` 占位版本 —— 已知遗留，决定不处理**（2026-10-29，所有者决定）：staged publishing 首次发布留下的空壳，不在 `latest` 上、`dsh plugin add` 永远装到稳定版，**不影响安装与运行**。清理需要临时调整 2FA 与令牌，属高风险运维操作；**清理步骤见私有记录**，在所有者明确要求前不动。
 - [x] **实机验收**（2026-10-29，所有者本人执行）：干净 profile 实装 tag 版 + rc.3 界面点检（顶栏 / 两个下拉 / 添加工作区 / 插件详情页）已跑完，**无问题**。维护者未逐项复核，本条以所有者确认为准。
 - [x] **实例同步：2.0.20 / rc.3 → 2.0.21-next / rc.4**（2026-10-30，本地提交 `1.5.4`）：**结论零迁移**。逐包 sha256 比对 npm tarball（rc.3 vs rc.4）：`primitives` 的 `lib/index.js` **540,800 字节逐字相同**；`conversation` 只有会话视图标签 tooltip（去掉 `session.moreViewsCurrent`）与顶栏无关；`ui-workspace` / `slots` / `locale` / `layout` / `dsh-workspace` / `host-directory-picker-auto` 只改 `package.json`。桌面壳 2.0.21-next 的更新说明里没有顶栏/标题栏改动（上游 rc.4 + 启动与窗口状态恢复 + 恢复助手 + Agents Anywhere 2.1.0）。运行期用 `cordis_inspect_query`（client Slots）复核：`conversation.session.header.actions` 仍是 session 作用域 list 槽，`bst-breadcrumb -40`（active）排最前，其余五个原生项顺序与 rc.3 相同；`plugins.row.config` 的键仍 active。**代码零改动，只改注释与文档**。
 - [x] **新增实例对账命令**（2026-10-30）：`tools/check-instance.mjs` + `npm run check:instance` —— 直接读当前实例的 `app.asar`，核对 16 项硬契约（primitives 21 个具名导出、四个槽位名、四个顶栏 DOM 锚点、`workspaces` / `sessions` 门面方法、`uiWorkspace` 五个方法、`workspace.add`、`locale` 入口、宿主目录选择 occupant、preload 桥）。期望值从 `lib/client.js` 自己抽取，不在脚本里抄第二份；`tools/` 不在 npm `files` 白名单，不随包发布。本机实测 16/16 PASS。（2026-11-05 起：服务方法改为从代码**实际调用**处抽取，并新增 `contextMenus`、原生会话菜单注册、8 语言 chip 文案关键字三项，现为 **18 项**；见 §7。）
-- [x] **v1.5.4 发布**（2026-10-30/31）：四侧完成。远端 `main` = `b28097a`；tag `v1.5.4`（annotated，peel 到 `b28097a`）；Release <https://github.com/xinspark/dsh-better-session-topbar/releases/tag/v1.5.4>（非 draft / 非 prerelease，`publishedAt` 2026-10-30T19:57:05Z）；Actions run `41119390181` success → `npm publish --provenance`，registry.npmjs.org `dist-tags.latest = 1.5.4`（`2026-10-30T19:58:22.797Z`，带 SLSA provenance + sigstore 签名），镜像 npmmirror 随后同步到 1.5.4。内容核对：发布包里的 `lib/client.js` 与提交 `b28097a` 的 blob **逐字节相同**（174,193 B）。市场条目**未动**（目录无 version 字段，功能描述未变；描述前缀 PR #10234 已于 2026-10-28T23:20:11Z 合并）。本地：`desktop` 与 `work-exp` 两个 profile 的软链均解析到 1.5.4，运行实例里 `bst-breadcrumb -40` active。
-  - 备注：本机 `npm` 默认 registry 是 `registry.npmmirror.com`，`npm view` 会比 npmjs 晚几十秒到几分钟 —— **发版后一律以 registry.npmjs.org 直查为准**，别用镜像的 404 判「没发出去」。
+- [x] **v1.5.4 发布**（2026-10-30/31）：四侧完成。远端 `main` = `b28097a`；tag `v1.5.4`（annotated，peel 到 `b28097a`）；Release <https://github.com/xinspark/dsh-better-session-topbar/releases/tag/v1.5.4>（非 draft / 非 prerelease，`publishedAt` 2026-10-30T19:57:05Z）；Actions run `41119390181` success → `npm publish --provenance`，registry.npmjs.org `dist-tags.latest = 1.5.4`（`2026-10-30T19:58:22.797Z`，带 SLSA provenance + sigstore 签名），镜像 npmmirror 随后同步到 1.5.4。内容核对：发布包里的 `lib/client.js` 与提交 `b28097a` 的 blob **逐字节相同**（174,193 B）。市场条目**未动**（目录无 version 字段，功能描述未变；描述前缀 PR #10234 已于 2026-10-28T23:20:11Z 合并）。本地：相关 profile 的软链均解析到 1.5.4，运行实例里 `bst-breadcrumb -40` active。
+  - 备注：**发版后一律以 `registry.npmjs.org` 直查为准**，不要用镜像的 404 判「没发出去」（本机 npm 镜像配置见私有环境记录）。
 
-## 7. 更新计划（2026-11-05，实例 2.0.22-next / 0.2.2-rc.1）
+## 7. 计划与决策的归属
 
-§6 的逐包对账结论仍是**零迁移**；本节的改动是趁升级做的功能收敛，不是升级强制。本节只记结论依据、待办与「为什么不做」。
-
-| 状态 | 项 | 说明 |
-| --- | --- | --- |
-| 已改（待实机验） | 行内「更多」改为宿主菜单 | 自建菜单整套删除，改调 `ctx.contextMenus.open(target, point)`；会话目标 `{ sessionId, displayTitle }`、工作区目标 `{ workspaceId, path, displayTitle }`。条目/权限/快捷键/对话框由 ui-workspace 渲染。**实机只需点一次**：任一行的「⋯」应弹出宿主菜单；下拉全关时浮层要收走（插件已显式 `close()`）|
-| 已改（待实机验） | 团队圆环用官方快照 | 改用槽 props 的 `useSessionStatus((state) => state.get(id)?.running)`（与官方 agent-team 同源），老内核退回 `byId.running`；保留「排除当前会话与链根」。**实机**：≥2 人团队、队友跑一轮 → 圆环亮；自己发消息 → 不亮 |
-| 已做 | 基线同步 | README 中英、`lib/client.js` 顶部 10 类注释、CHANGELOG（`[Unreleased]`）已抬到 2.0.22-next / 0.2.2-rc.1；`package.json` 版本号留到发版时再动 |
-| 已不需要 | 更多菜单接快捷键 / `copySessionId` 用 `writeClipboard` | 随自建菜单一起删除：宿主菜单自己按 `commandId` 查 catalog 渲染键帽，复制动作自带「已复制」提示 |
-| 已做 | 语言覆盖（chip 识别） | `CHIP_HINTS` 扩到官方 8 种语言（zh/en/ja/de/es/fr/pt/ru），并新增 `SWITCHER_HINTS`：统计数不再只认「以数字开头」——官方把数字放在词尾的语言（ja/es/fr/ru）同样认得出，切换器形态不会把标题里的数字当计数。官方再增语言时补词干即可 |
-| 已做 | 工程习惯对齐官方/同行 | host/client `name` = 包名（中文只在 `locale/*.json` 的 `meta.title`）；`settings.configure({auto:false}, <插件自身 fiber>)`；字典注册放进 `ctx.effect`、命名空间统一为包名；服务直接读 `ctx.<service>`；`dsh.verifiedAgainst` 补 `0.2.2-rc.1`；槽位注册去掉无效的 `registrant`；下拉补 `aria-haspopup`、方向键/Home/End、打开聚焦首行、Tab 收起，「⋯」改为合法 menuitem。**未声明 `dsh.client.inject`**：官方 context-menu README 建议声明，但本插件不在客户端 import 该包（只消费服务），同行 maintainer / basic-right-sidebar 也未声明；声明会让 0.2.1 的降级承诺取决于客户端的未验证行为，故记录为有意例外 |
-| 待定 | 版本号 | 功能面变化：0.2.1-rc.4 及更早失去行内「更多」（面包屑与下拉照常，属优雅降级）。按 SemVer 建议 **2.0.0**；发版与推送仍需所有者批准 |
-| 后续 | 结构锚点硬化（可选） | 子智能体那枚 chip 目前靠文案识别，它还有 `aria-haspopup="tree"` 可作结构锚点；后台任务在官方给 `data-*` 之前只能继续靠文案 |
-| 不做 | 6 语言自有字典 | locale 兜底链以 `en` 结尾，6 种新语言下插件文案已是英文；36 键 × 6 语言翻译收益低、质量风险高。写进 README「已知限制」即可 |
+- **公开文档只记已发生的事实**：行为见 README / `docs/`，版本变化见 `CHANGELOG.md`，升级对账见 §6。
+- **面向未来的材料放私有**：路线图、待办、决策记录（ADR）、调研、本机环境、发版清单放在本机 `docs-private/`——[结构说明](docs-private/README.md)入库，内容不入库。
+- 维护者查计划看 `docs-private/roadmap.md` / `todo.md`，查「当时为什么这么定」看 `docs-private/decisions/`；结论稳定后按 `docs-private/README.md` 的升级路径变成公开文档。

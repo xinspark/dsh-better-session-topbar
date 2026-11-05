@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Bessere Sitzungsleiste",
+    "description": "Ersetzt den Sitzungstitel in der oberen Leiste durch eine Breadcrumb „Arbeitsbereich / Sitzung“ mit direktem Wechsel sowie Anheften, Verzweigen und Archivieren; auf schmalen Bildschirmen wahlweise Breadcrumb oder Sitzungstitel."
+  }
+}

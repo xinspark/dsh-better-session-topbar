@@ -18,7 +18,7 @@
 | tag `v1.2.0` | **不存在**（远端只有 `v1.0.0`） | 打 tag 并推送 |
 | GitHub **Release** | **0 个** | 必须 `gh release create`：README 的 release badge 读的是 Release，**只推 tag 不点亮** |
 
-- ✅ **代理红灯已解除（2026-10-16 实测更新）**：7890 端口恢复监听，CONNECT 隧道可建立；但 git/curl 默认的 Schannel TLS 后端在本机报 `SEC_E_NO_CREDENTIALS`。**解法：git 命令统一加 `-c http.sslBackend=openssl`**（`ls-remote` / `push` 均实测通过），不用改全局配置。Node fetch 直连与走代理都正常；GCM 里的 `gho_` token 对 API 有效（用户 xinspark）——本机无 gh CLI，Release 用该 token 直接调 GitHub API 创建。
+- ✅ **代理红灯已解除（2026-10-16 实测更新）**：当时本机的代理与 TLS 现场细节（端口、Schannel 变通、凭据来源）已从公开存档移除，只保留结论：Release 通过 GitHub API 创建，`ls-remote` / `push` 均实测通过。复现所需的环境记录见维护者的私有环境文档。
 - 🔴 **本机 desktop profile 里本插件是 `link:E:/FXS/Data/DSH-Plugins000/dsh-better-session-topbar`** → 本机跑的始终是工作树代码，**不能当作 tag 内容的验收证据**。验收要另开一个干净 profile（本机 `~/.dsh/profiles/` 只有 `desktop` 及两个备份，没有 `web`）。
 
 打包面自查（已实测，`npm pack --dry-run` @ 2026-10-16）：tarball = **8 个文件 / 32.0 kB packed** = `files` 白名单 4 项（`index.js` / `lib/client.js` / `cordis.patch.yml` / `CHANGELOG.md`）+ npm 强制附带的 `package.json` / `README.md` / `README.en.md` / `LICENSE`。无 `scripts`、无构建产物。**无漏文件。**（本机 npm 缓存目录被沙箱拒写时，用 `--cache <workspace内路径>` 重跑。）

@@ -1,0 +1,22 @@
+name: ci
+
+# 每次 push / PR 跑仓库自带的门：渲染冒烟、语言键集、文档链接。
+# 发布（npm）由 publish.yml 负责，两者互不替代。
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 插件没有构建步骤，也不需要安装依赖；直接跑门。
+      - name: Smoke test + locale + docs
+        run: npm test

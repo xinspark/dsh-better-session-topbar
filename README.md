@@ -7,6 +7,7 @@
   <img src="https://img.shields.io/badge/plugin-UI%20%E5%A2%9E%E5%BC%BA-47848F?style=flat" alt="UI enhancement plugin">
   <img src="https://img.shields.io/badge/DSH%20Web%20GUI-Windows%20%7C%20macOS%20%7C%20Linux-4493F8?style=flat" alt="Windows | macOS | Linux">
   <img src="https://img.shields.io/badge/license-MIT-2EA44F?style=flat" alt="MIT License">
+  <a href="https://github.com/xinspark/dsh-better-session-topbar/actions/workflows/ci.yml"><img src="https://github.com/xinspark/dsh-better-session-topbar/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
 
 <p align="center"><sub>简体中文 · <a href="README.en.md">English</a></sub></p>
@@ -37,7 +38,7 @@
 dsh plugin --profile web add dsh-better-session-topbar
 
 # 从 GitHub 安装（等价；可锁 tag 或 commit）
-dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
+dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.0
 ```
 
 - **建议锁定 commit**：GitHub 安装拉取的是仓库源码，tag 之后的新推送不会自动影响已安装版本；如需把运行内容严格固定到某个提交，用 `github:xinspark/dsh-better-session-topbar#<commit-sha>`（官方文档推荐做法）。
@@ -45,7 +46,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
 
   ```sh
   dsh plugin --profile web add ./dsh-better-session-topbar
-  dsh plugin --profile web add ./dsh-better-session-topbar-1.5.4.tgz
+  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.0.tgz
   ```
 
 然后启动 Web UI：`dsh web`（或 `dsh --profile web`）。首次 `add` 会自动用 `@deepseek-ai/dsh-base` 初始化 profile。
@@ -67,8 +68,8 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
 | 会话下拉 | 当前工作区的会话列表（含相对时间元信息）、新建会话、行内「更多」：置顶 / 重命名 / 分支 / 复制 Session ID / 归档会话（宿主菜单，按权限显示）。 |
 | 原生一致的交互 | 下拉为自绘层，卡片沿用原生菜单 token（`--dsw-elevation-prominent`、`--dsw-radius-lg`、`--dsw-menu-surface-fill` + `--dsw-menu-backdrop-filter`、hover 填充 `--dsw-alias-interactive-bg-hover`）；行内度量为 min-height 40 / padding 8·10 / 14px·22px（与原生 `AccountMenu` 的 `[role=menuitem]` 一致；原生 `Menu.module.css` 更紧凑，本插件未跟随）。键盘/ARIA 与原生 `Menu` 同构：打开聚焦首行、`ArrowUp/Down`、`Home/End`、`Tab` 收起、`Esc` 收起并归还焦点。行内「更多」本体是**宿主的右键菜单**（`contextMenus` 服务）：条目、顺序、权限门控、快捷键键帽、重命名/删除对话框全由 ui-workspace 渲染；插件只传目标与坐标。 |
 | 生命周期一致 | 宿主菜单跟随其所在下拉同生命周期：下拉关闭（点击外部 / Escape / 选择 / 切换）时一并收走，不残留孤立浮层。 |
-| 插件详情页 | Plugins → 本插件 → 配置：**窄屏会话标题显示选择**（原生外观方块样式的二选一：面包屑模式 / 标题模式，每个选项旁写明优缺点）与**探针日志**开关。写入 profile 的 Cordis patch，即时生效。 |
-| 双语言 | 内置 zh/en 双语言字典，跟随 DSH 语言切换实时生效。 |
+| 插件详情页 | Plugins → 本插件 → 配置：**窄屏会话标题显示选择**（原生外观方块样式的二选一：面包屑模式 / 标题模式，每个选项旁写明优缺点）与**探针日志**开关。写入 profile 的 Cordis patch，即时生效。页面底部一行「⭐ 用着顺手？给个 Star 支持一下」（「查看仓库」由宿主页脚提供，本行不重复造链接）。 |
+| 多语言 | 插件自有文案全部跟随 DSH 的 8 种官方语言（中/英/日/德/西/法/葡/俄）实时切换，`locale/*.json` 的标题/描述也各备一份。**其中日/德/西/法/葡/俄为机器翻译**（人工粗校），见「已知限制」。 |
 
 ## 截图
 
@@ -107,6 +108,20 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
 - 键盘：下拉打开后 `↑` / `↓`、`Home` / `End` 移动，`Tab` 收起，`Esc` 收起并把焦点还给触发按钮。
 - 顶栏挤不下时按固定次序让位；想换窄屏的显示方式，去 Plugins → 更好的会话顶栏 → 配置。
 
+## 文档
+
+| 想看什么 | 去哪 |
+| --- | --- |
+| 全部文档导航 | [docs/README.md](docs/README.md) |
+| 设计与取舍（折叠阶梯 / chip / 菜单委派） | [docs/design.md](docs/design.md) |
+| 装配契约（三处同名 / 槽位 / 服务 / DOM 锚点） | [docs/reference/architecture.md](docs/reference/architecture.md) |
+| 版本兼容与升级对账 | [docs/reference/compatibility.md](docs/reference/compatibility.md) |
+| 配置项与生效方式 | [docs/guide/configuration.md](docs/guide/configuration.md) |
+| 故障排查（症状 → 原因 → 处理） | [docs/guide/troubleshooting.md](docs/guide/troubleshooting.md) |
+| 验收记录（自动化门 + 实机清单） | [docs/testing.md](docs/testing.md) |
+| 踩过的坑（症状 → 根因 → 证据） | [docs/experience/](docs/experience/README.md) |
+| 维护者手册（发版 / 审批 / 市场） | [MAINTAINING.md](MAINTAINING.md) |
+
 ## 与官方项目的关系
 
 本项目基于官方 [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness) 构建，是一个**社区插件**，并非 DeepSeek 官方产品。它展示的都是 DSH 自己的数据与界面，只是重新组织；不修改任何系统源码。
@@ -116,20 +131,22 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
 - **`index.js`** —— host 半：只声明两项配置的 schema（`narrowMode` / `probeLog`），所有界面逻辑在浏览器半。
 - **`lib/client.js`** —— 浏览器半（UMD，注册进 DSH `clientModules`）。结构自上而下：
   1. 本地基础工具：样式注入 / 定时器。
-  2. **双语字典**（`BST_ZH` / `BST_EN`）—— 注册进 `ctx.locale`，跟随语言切换；`bstT()` 带 fallback。
+  2. **字典**（`BST_ZH` / `BST_EN` / `BST_JA` / `BST_DE` / `BST_ES` / `BST_FR` / `BST_PT` / `BST_RU`，八本键集完全一致）—— 注册进 `ctx.locale`，跟随语言切换；`bstT()` 带 fallback。
   3. **自绘下拉列表** `BstList` —— 沿用原生菜单样式与 token；键盘/ARIA 与原生 `Menu` 同构（`role=menu` + 每行两个 `menuitem`、打开聚焦首行、`ArrowUp/Down`、`Home/End`、`Tab`/`Esc` 收起）；定位避让视口边缘；`click` 外部关闭（不用 mousedown/pointerdown：它们先于 `click` 派发，会先行卸载列表、吃掉行内 click）。
   4. `WorkspaceTitleBreadcrumb` —— 注册进 `conversation.session.header.actions`（`order: -40`，顶栏最左）；逐级自适应图标态（该级标签被挤到可见宽度 < `ICONIC_TEXT_FLOOR` 才换图标）+ 三枚原生 chip 的装饰与宽度阶梯（判据全部来自实测可用宽度 `avail()`，**不使用** header 宽度滞回 —— 折叠常由改名/新 chip 引起，按 header 宽度记基准会折下去解不开）；行内「更多」不渲染菜单本体，只把 `{kind, value}` 目标交给宿主的 `contextMenus.open(目标, 视口坐标)`，并在下拉全关时收走它。
   5. `apply(ctx)` —— 样式注入 + 槽位注册（顶栏面包屑 + 插件详情页）；`inject: ['slots','workspaces','uiWorkspace','locale']`（服务依赖必须声明，否则 apply 抢跑会把 `undefined` 永久固化进所有动作，表现为「界面正常、点了没反应」）；服务按官方写法**直接读** `ctx.<service>`。**可选**依赖一律走 `ctx.inject([...], …)` 子级：`configForms`（详情页）、`shortcuts`（`workspace.add` 探活）、`contextMenus`（行内「更多」）—— 缺了只少那一个入口，不影响面包屑。
 
-- **改动后的最低验证** —— `npm test`（`test/render-smoke.cjs`：用桩 React/primitives 执行工厂与面包屑、设置页的渲染体，能抓住「删了代码但还有悬空引用」这类错误；它不验外观）。发布前仍要按「DSH 升级维护清单」实机点一遍。
+- **改动后的最低验证** —— `npm test`：`test/render-smoke.cjs` 用桩 React/primitives 执行工厂与面包屑、设置页的渲染体，并强校验八本字典键集、`locale/*.json` meta 与求星行；`tools/check-docs.mjs` 校验文档链接与锚点。它不验外观，发布前仍要按「DSH 升级维护清单」实机点一遍。
 
 扩展速查：
 
 - **新增行操作** —— 不要在这里加：行内菜单由宿主菜单提供，条目在 ui-workspace 里按 `target` 注册。插件这边只决定「给哪个目标挂 `more`」（见 `wsListItems` / `ssListItems`）。
-- **新增文案** —— 在 `BST_ZH` / `BST_EN` 字典加 key。
+- **新增文案** —— 八本字典（`BST_ZH` / `BST_EN` / `BST_JA` / `BST_DE` / `BST_ES` / `BST_FR` / `BST_PT` / `BST_RU`）是同一套键，新增 key 必须同时补齐八本；`npm test` 会强校验键集，漏一本直接红。
+- **详情页底部加一行求星提示（通用示范）** —— 调 `bstStarLine(label)` 并加一个文案键；星形用 `⭐` 字符（不自绘图标），**不要**再画「查看仓库」链接（宿主页脚已有），侵入度最低。
 - **调整下拉样式** —— 修改 `insertStyle` 中的 `.bst-item*` 规则（token 与原生 Menu 一致）。
 - **诊断日志默认关闭，开关在插件详情页** —— 正常使用不往控制台写任何东西。在 Plugins → 本插件 → 配置 里打开「探针日志」即可（即时生效，不必刷新），三枚前缀分别是 `[bst-dom]`（结构探针）、`[bst-chip]`（chip 探测与阶梯结论）、`[bst-perf]`（单趟测量超过 60ms 才有的慢趟记录）。日志关着时连结构探针的测量都不跑。写在 profile 的 `cordis.patch.yml` 里，跟随 profile。
 - **改完 host 半不用重启 app** —— 实机验证过的做法：客户端改动刷新页面即可；`index.js` 这类 host 改动在插件页把本行关掉再打开（`已关闭 → 运行中`）就会重新导入，新注册的 `Config` 立刻生效。
+- **改了 `locale/*.json` 的包标题/描述要重启 app** —— 那是**宿主启动时**读取的包元数据（实测：应用 17:59 启动、18:29 新增 `locale/ja.json`，刷新页面仍显示英文；重启后变日文）。`lib/client.js` 里的界面字典不受影响，刷新页面即可。
 - **schema 依赖 schemastery（peer）** —— host 半的 `Config` 用 `@deepseek-ai/schemastery` 构造，`package.json` 里声明为 peerDependencies。**以 junction/symlink 安装时**要注意：Node 按真实路径解析，插件会找不到 `node_modules/@deepseek-ai/schemastery` —— 需要在仓库自身或**上层目录**能解析到它（本机开发树的上一层 `plugins/node_modules` 就提供了它，所以仓库自己的 `node_modules/@deepseek-ai` 是空的也照常加载）；真目录安装（`dsh plugin add`）不需要这一步。
 - **窄屏模式是枚举不是布尔** —— `narrowMode` 取 `'crumb' | 'title'`（host 端 `z.union([z.const(...), z.const(...)])`）。1.3.4 及更早存的是布尔 `narrowTitle`，字段改名后旧值会被 schema 丢弃，升级后回到默认「面包屑模式」，去详情页重选即可。
 - **选择器为什么不用 SegmentedControl** —— 原生 `SegmentedControl` 是 tablist→panel 语义（每个选项带 `aria-controls` 指向面板），这里没有面板，用它就会产出悬空的 `aria-controls`。详情页的两选一改用与 DSH 设置页「外观」三选一同一套方块（thumbnail/cube）：`.5px` 描边、`--dsw-radius-xl`、选中换 `--dsw-alias-bg-module-platform` + `--dsw-static-neutral-bluish-400`，`aria-pressed` 表达选择。
@@ -146,7 +163,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
 
 ## DSH 升级维护清单
 
-本插件贴着 DSH 内部契约实现（没有稳定的第三方 API），升级 DSH 后按这张表逐项复核；`lib/client.js` 顶部有同源注释，改代码时以那里的 10 类明细为准。
+本插件贴着 DSH 内部契约实现（没有稳定的第三方 API），升级 DSH 后按这张表逐项复核；详细契约与 10 类耦合点见 [装配契约](docs/reference/architecture.md)，升级流程见 [版本兼容](docs/reference/compatibility.md)。
 
 | 检查项 | 位置 | 升级后怎么验 |
 | --- | --- | --- |
@@ -162,8 +179,15 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
 ## 已知限制
 
 - **行内「⋯」需要 DSH 0.2.2-rc.1+**（`contextMenus` 服务）。更早的内核上面包屑与两个下拉照常工作，只是没有这个入口 —— 侧栏仍是完整入口，插件不保留第二套菜单。
-- **插件自有文案只有中/英**：日语、德语、西班牙语、法语、葡萄牙语、俄语下显示英文（DSH 的语言回退链以 `en` 结尾），可读、不破版。
+- **插件自有文案**：8 种官方语言全量覆盖（中/英/日/德/西/法/葡/俄），跟随 DSH 语言实时切换。
+- **6 种新增语言是机器翻译**（日/德/西/法/葡/俄，人工只做了粗校），个别措辞可能不自然或不符合你的术语习惯 —— 欢迎提 Issue 或 PR 纠正：文案在 `lib/client.js` 的 `BST_JA` / `BST_DE` / `BST_ES` / `BST_FR` / `BST_PT` / `BST_RU`，包标题与描述在 `locale/*.json`。中/英为人工撰写。
+- **npm 包页面的 README 相对链接**：registry 渲染的 README 里，指向 `docs/` 与截图的相对路径可能 404（GitHub 上正常）；以 GitHub 仓库页为准。
 - **三枚原生 chip 的装饰依赖官方文案识别**：已覆盖官方 0.2.2 的 8 种语言（中/英/日/德/西/法/葡/俄）；官方再新增语言时，把词干补进 `CHIP_HINTS` 即可（见 MAINTAINING §7）。面包屑本身与语言无关。
+
+## 贡献
+
+见 [CONTRIBUTING.md](CONTRIBUTING.md)；安全问题请按 [SECURITY.md](SECURITY.md) 私下报告。
+提交前请跑 `npm test`（渲染冒烟 + 语言键集 + 文档链接）。
 
 ## 特别感谢
 

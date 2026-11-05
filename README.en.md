@@ -7,6 +7,7 @@
   <img src="https://img.shields.io/badge/plugin-UI%20enhancement-47848F?style=flat" alt="UI enhancement plugin">
   <img src="https://img.shields.io/badge/DSH%20Web%20GUI-Windows%20%7C%20macOS%20%7C%20Linux-4493F8?style=flat" alt="Windows | macOS | Linux">
   <img src="https://img.shields.io/badge/license-MIT-2EA44F?style=flat" alt="MIT License">
+  <a href="https://github.com/xinspark/dsh-better-session-topbar/actions/workflows/ci.yml"><img src="https://github.com/xinspark/dsh-better-session-topbar/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
 
 <p align="center"><sub><a href="README.md">简体中文</a> · English</sub></p>
@@ -37,7 +38,7 @@ Works on **Windows · macOS · Linux** (DSH Web GUI) — plain JavaScript, no na
 dsh plugin --profile web add dsh-better-session-topbar
 
 # from GitHub (equivalent; pins a tag or commit)
-dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
+dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.0
 ```
 
 - **Consider locking a commit**: a GitHub install pulls the repository source, so later pushes don't silently change what you run. To pin the exact content, use `github:xinspark/dsh-better-session-topbar#<commit-sha>` (as recommended by the official docs).
@@ -45,7 +46,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
 
   ```sh
   dsh plugin --profile web add ./dsh-better-session-topbar
-  dsh plugin --profile web add ./dsh-better-session-topbar-1.5.4.tgz
+  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.0.tgz
   ```
 
 Then start the Web UI: `dsh web` (or `dsh --profile web`). The first `add` auto-initializes the profile with `@deepseek-ai/dsh-base`.
@@ -67,8 +68,8 @@ The bundle patch (`cordis.patch.yml`) registers both the host and client halves 
 | Session dropdown | Session list of the current workspace (relative-time meta), New session, row "more": pin / rename / fork / copy Session ID / archive session (the host menu, shown by permission). |
 | Native-consistent interactions | The dropdown is a self-drawn layer that reuses the native menu tokens (`--dsw-elevation-prominent`, `--dsw-radius-lg`, `--dsw-menu-surface-fill` + `--dsw-menu-backdrop-filter`, hover fill `--dsw-alias-interactive-bg-hover`); its row metrics are min-height 40 / padding 8·10 / 14px·22px (matching the native `AccountMenu` `[role=menuitem]`; the native `Menu.module.css` is more compact and this plugin does not follow it). Its keyboard/ARIA model mirrors the native `Menu`: focus the first row on open, `ArrowUp/Down`, `Home/End`, `Tab` closes, `Esc` closes and returns focus. The inline "more" menu **is the host's own** (`contextMenus`): entries, order, permission gating, shortcut keycaps and the rename/delete dialogs all come from ui-workspace; this plugin only passes the target and the viewport point. |
 | Shared lifecycle | The host menu follows its owning dropdown: it is taken down with it (outside click / Escape / selection / switching) — no orphan overlay. |
-| Plugin page | Plugins → this plugin → Configure: **narrow-screen session title display** (a two-option selector shaped like DSH's own appearance cubes — Breadcrumb / Session title, each with its trade-off spelled out) and the **probe log** switch. Both apply immediately and persist to the profile's Cordis patch. |
-| Bilingual | Built-in zh/en dictionaries that follow the DSH language switch live. |
+| Plugin page | Plugins → this plugin → Configure: **narrow-screen session title display** (a two-option selector shaped like DSH's own appearance cubes — Breadcrumb / Session title, each with its trade-off spelled out) and the **probe log** switch. Both apply immediately and persist to the profile's Cordis patch. The page ends with one line: "⭐ Finding it useful? Star it on GitHub" (the repository link comes from the host footer; this line adds none). |
+| Languages | All plugin-owned copy follows the eight DSH languages (zh / en / ja / de / es / fr / pt / ru) live, with a per-language `locale/*.json` meta title and description. **The ja / de / es / fr / pt / ru copy is machine translation** (lightly proofread) — see Known limitations. |
 
 ## Screenshots
 
@@ -107,6 +108,20 @@ After installation, open any session — the topbar center shows the "Workspace 
 - Keyboard: once open, `↑` / `↓` and `Home` / `End` move, `Tab` closes, `Esc` closes and returns focus to the trigger.
 - When the topbar runs out of room it gives way in the fixed order above; to change the narrow-screen display, open Plugins → Better Session Topbar → Configure.
 
+## Documentation
+
+| What you want | Where |
+| --- | --- |
+| Full documentation index | [docs/README.md](docs/README.md) |
+| Design and trade-offs (ladder / chips / menu delegation) | [docs/design.md](docs/design.md) |
+| Assembly contract (three names / slots / services / DOM anchors) | [docs/reference/architecture.md](docs/reference/architecture.md) |
+| Version compatibility and upgrade reconciliation | [docs/reference/compatibility.md](docs/reference/compatibility.md) |
+| Settings and when they apply | [docs/guide/configuration.md](docs/guide/configuration.md) |
+| Troubleshooting (symptom → cause → fix) | [docs/guide/troubleshooting.md](docs/guide/troubleshooting.md) |
+| Acceptance record (gates + manual checklist) | [docs/testing.md](docs/testing.md) |
+| Pitfalls (symptom → root cause → evidence) | [docs/experience/](docs/experience/README.md) |
+| Maintainer handbook (release / approvals / market) | [MAINTAINING.md](MAINTAINING.md) |
+
 ## Relationship with DSH
 
 This project is built on the official [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness) and is a **community plugin** — not an official DeepSeek product. Everything it shows is DSH's own data and UI, re-arranged; no system source changes.
@@ -116,20 +131,22 @@ This project is built on the official [deepseek-ai/deepseek-harness](https://git
 - **`index.js`** — host half: it only declares the schema of the two settings (`narrowMode` / `probeLog`); every piece of UI logic lives in the browser half.
 - **`lib/client.js`** — browser half (UMD, registered into DSH `clientModules`). Structure, top to bottom:
   1. Local utilities: style injection / timers.
-  2. **Bilingual dictionaries** (`BST_ZH` / `BST_EN`) — registered into `ctx.locale`, following the language switch; `bstT()` falls back gracefully.
+  2. **Dictionaries** (`BST_ZH` / `BST_EN` / `BST_JA` / `BST_DE` / `BST_ES` / `BST_FR` / `BST_PT` / `BST_RU`, all with the same key set) — registered into `ctx.locale` and following the language switch; `bstT()` falls back gracefully.
   3. **Self-drawn dropdown** `BstList` — native menu styling and tokens; the keyboard/ARIA model mirrors the native `Menu` (`role=menu` with two `menuitem`s per row, focus the first row on open, `ArrowUp/Down`, `Home/End`, `Tab`/`Esc` close); viewport-aware positioning; outside close on `click` (not mousedown/pointerdown: those dispatch before `click`, unload the list first and swallow inline clicks).
   4. `WorkspaceTitleBreadcrumb` — registered into `conversation.session.header.actions` (`order: -40`, leftmost in the topbar); per-level icon fallback (a level drops its text only once the topbar squeezes it below `ICONIC_TEXT_FLOOR` of visible label width) plus the decoration and width ladder for the three native chips (every decision comes from the measured free width, `avail()`; **no** header-width hysteresis — folds are usually caused by a rename or a newly appeared chip, and a fold keyed on header width never comes back). The inline "more" does not render a menu at all: it hands `{kind, value}` to the host's `contextMenus.open(target, viewport-point)` and takes that menu down whenever all of its dropdowns close.
   5. `apply(ctx)` — style injection + slot registrations (topbar breadcrumb and the plugin page); `inject: ['slots','workspaces','uiWorkspace','locale']` (declaring the service dependencies matters: if `apply` wins the race, `undefined` handles get captured permanently and every action dies silently while the UI still looks perfect), and services are read directly as `ctx.<service>` like the official plugins. **Optional** dependencies all go through `ctx.inject([...], …)` children: `configForms` (plugin page), `shortcuts` (`workspace.add` liveness), `contextMenus` (the inline "more") — without them you only lose that one entry, never the breadcrumb.
 
-- **Minimum check after a change** — `npm test` (`test/render-smoke.cjs` runs the factory and the breadcrumb / settings render bodies against stub React and primitives; it catches dangling references after a deletion and says nothing about appearance). Still click through the DSH upgrade checklist before a release.
+- **Minimum check after a change** — `npm test`: `test/render-smoke.cjs` runs the factory and the breadcrumb / settings render bodies against stub React and primitives and enforces the eight locale key sets, the `locale/*.json` metas and the star line; `tools/check-docs.mjs` validates documentation links and anchors. It says nothing about appearance, so still click through the DSH upgrade checklist before a release.
 
 Quick reference:
 
 - **Add a row action** — not here: the inline menu comes from the host, whose entries are registered per `target` in ui-workspace. This plugin only decides which rows carry `more` (see `wsListItems` / `ssListItems`).
-- **Add copy** — add a key to the `BST_ZH` / `BST_EN` dictionaries.
+- **Add copy** — the eight dictionaries (`BST_ZH` / `BST_EN` / `BST_JA` / `BST_DE` / `BST_ES` / `BST_FR` / `BST_PT` / `BST_RU`) share one key set, so a new key must be added to all eight; `npm test` enforces the key sets and fails otherwise.
+- **Add the star prompt line to another plugin's page (the shared pattern)** — call `bstStarLine(label)` with one dictionary key; the star is the `⭐` character (no hand-drawn icon) and the line adds **no** "view repository" link (the host footer already has one), which keeps the intrusion minimal.
 - **Tweak dropdown styles** — edit the `.bst-item*` rules in `insertStyle` (tokens match the native Menu).
 - **Diagnostics are off by default; the switch lives on the plugin page** — normal use writes nothing to the console. Turn on **Probe logs** under Plugins → this plugin → Configure (applies immediately, no reload). The three prefixes are `[bst-dom]` (structural probe), `[bst-chip]` (chip discovery and ladder conclusions) and `[bst-perf]` (only emitted when a single pass takes longer than 60ms). While it is off, even the structural probe's measurements are skipped. The value is stored in the profile's `cordis.patch.yml`, so it follows the profile.
 - **A host-half change does not need an app restart** — verified live: client changes apply on refresh, and an `index.js` change is picked up by toggling this row off and on in the Plugins page (`已关闭 → 运行中`), which re-imports it so a newly declared `Config` takes effect immediately.
+- **Changing a package title/description in `locale/*.json` needs an app restart** — that package metadata is read **at host boot** (measured: app started 17:59, `locale/ja.json` added 18:29, a page refresh still showed English; a restart shows Japanese). The UI dictionaries inside `lib/client.js` are unaffected and apply on refresh.
 - **The schema needs schemastery (a peer)** — the host half builds `Config` with `@deepseek-ai/schemastery`, declared as a peerDependency in `package.json`. If you install this repository as a **symlink/junction** while developing, note that Node resolves through the real path, so `@deepseek-ai/schemastery` must resolve from the repository or one of its **parent** directories (this machine's dev tree provides it from the parent `plugins/node_modules`, so the repository's own `node_modules/@deepseek-ai` can stay empty). A real-directory install (`dsh plugin add`) does not need this.
 - **The narrow-screen mode is an enum, not a boolean** — `narrowMode` is `'crumb' | 'title'` (host side: `z.union([z.const(...), z.const(...)])`). Up to 1.3.4 the stored field was the boolean `narrowTitle`; after the rename the old value is dropped by the schema, so the plugin falls back to the default Breadcrumb display — pick the other option on the plugin page.
 - **Why the selector is not a SegmentedControl** — the native `SegmentedControl` is tablist → panel semantics (each option carries an `aria-controls` pointing at a panel); there is no panel here, so it would emit dangling `aria-controls` references. The two-option selector reuses the cube DSH itself uses for its appearance picker: `.5px` border, `--dsw-radius-xl`, selected state swapping to `--dsw-alias-bg-module-platform` + `--dsw-static-neutral-bluish-400`, with `aria-pressed` carrying the selection.
@@ -146,7 +163,7 @@ Quick reference:
 
 ## DSH upgrade checklist
 
-This plugin sits on DSH's internal contracts (there is no stable third-party API), so re-check this table after every DSH upgrade. The ten categories in the comment block at the top of `lib/client.js` are the authoritative list.
+This plugin sits on DSH's internal contracts (there is no stable third-party API), so re-check this table after every DSH upgrade. The detailed contract and the ten coupling points live in [Assembly contract](docs/reference/architecture.md); the upgrade runbook is in [Version compatibility](docs/reference/compatibility.md).
 
 | Check | Where | How to verify after an upgrade |
 | --- | --- | --- |
@@ -162,8 +179,15 @@ This plugin sits on DSH's internal contracts (there is no stable third-party API
 ## Known limitations
 
 - **The inline "⋯" needs DSH 0.2.2-rc.1+** (the `contextMenus` service). On earlier kernels the breadcrumb and both dropdowns still work; the entry is simply absent — the sidebar remains the full entry, and this plugin keeps no second menu.
-- **The plugin's own copy is zh/en only**: Japanese, German, Spanish, French, Portuguese and Russian fall back to English (DSH's locale fallback chain ends at `en`) — readable, never broken.
+- **The plugin's own copy**: all eight official languages are covered (zh / en / ja / de / es / fr / pt / ru) and follow the DSH language switch live.
+- **The six added languages are machine translation** (ja / de / es / fr / pt / ru, lightly proofread), so some phrasing may read unnaturally or miss your preferred terminology — issues and pull requests are welcome: the copy lives in `BST_JA` / `BST_DE` / `BST_ES` / `BST_FR` / `BST_PT` / `BST_RU` in `lib/client.js`, and the package title/description in `locale/*.json`. Chinese and English are written by hand.
+- **Relative links in the npm README**: on the registry-rendered package page, relative links into `docs/` and the screenshots may 404 (they work on GitHub); treat the GitHub repository page as the source of truth.
 - **The three native chips are decorated through official label matching**: all eight languages of 0.2.2 (zh / en / ja / de / es / fr / pt / ru) are covered; when DSH adds a language, add its stems to `CHIP_HINTS` (see MAINTAINING §7). The breadcrumb itself is language-independent.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md); report security issues privately per [SECURITY.md](SECURITY.md).
+Run `npm test` (render smoke + locale key sets + docs links) before opening a pull request.
 
 ## Acknowledgments
 

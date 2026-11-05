@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0] - 2026-11-05
 
 **行内「更多」交给宿主**：不再自己实现会话/工作区菜单，改为调用 DSH 0.2.2-rc.1 起的 `contextMenus` 服务。插件删掉五个动作、两套重命名/删除对话框与权限判断；菜单条目、顺序、权限门控、快捷键、对话框全部由 ui-workspace 渲染。
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **权限门控**：没有某项权限时该条目不会出现（自建菜单做不到）。
 - **快捷键键帽**：菜单里直接显示官方当前绑定（`session.rename` / `session.fork` / `session.archive`），随用户改键变化。
 - **三枚原生 chip 的识别扩到官方 8 种语言**（中/英/日/德/西/法/葡/俄）：`CHIP_HINTS` 从 zh/en 扩到全部语言，统计数提取不再只认「以数字开头」（官方把数字放在词尾的语言同样认得出），并新增 `SWITCHER_HINTS`，避免把「切换子智能体：{标题}」标题里的数字当成计数。
+- **多语言适配全量扩到 8 种官方语言**：插件自有文案的 37 个键在日本语 / 德语 / 西班牙语 / 法语 / 葡萄牙语 / 俄语下补齐（八本字典键集完全一致，locale 服务按语言链逐键回退）；`locale/*.json` 的 `meta.title` / `meta.description` 也补齐 6 份。**6 种新增语言为机器翻译（人工粗校）**，README「已知限制」已注明并欢迎纠正。冒烟测试新增四道门：八本字典键集一致、zh/en 一致、设置页键全覆盖、8 份 meta 完整且 en 无 CJK。
+- **插件详情页底部的求星提示**：配置区之后一行「⭐ 用着顺手？给个 Star 支持一下」；星形就是 Unicode 字符（不自绘图标），「查看仓库」沿用宿主页脚，本行不新增链接（侵入度最低）。文案走 locale；冒烟测试断言该行与文案存在。
 - `tools/check-instance.mjs` 新增三项对账：`contextMenus` 服务（`open(target, point)`）、ui-workspace 的原生会话菜单注册、8 语言 chip 文案关键字（官方改译文时会先红）；服务方法期望值改为从 `lib/client.js` **实际调用**处抽取（注释先剔除），删掉调用时对账表自动跟着缩。
 
 ### Changed
@@ -26,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **团队 chip 的运行圆环改用槽 props 的 `useSessionStatus`**（与官方 agent-team 同源）：圆环状态与会话状态同一时刻，不再滞后一个摘要快照周期；老内核自动退回 `byId[...].running`。
 - 基线抬到 **DSH NEXT 2.0.22-next / Harness 0.2.2-rc.1**；README 中英、`lib/client.js` 顶部注释同步。
 - **工程习惯对齐官方/同行**：host 与 client 的 `name` 改为包名（中文标题只留在 `locale/*.json` 的 `meta.title`）；`settings.configure` 改传**插件自身**的 fiber；字典注册交给 `ctx.effect` 并在卸载时自动注销；locale 命名空间从旧包名 `better-session-title` 统一为 `dsh-better-session-topbar`；服务改为官方写法直接读 `ctx.<service>`（删掉 `ctx.get` 的服务缺失分支）；`package.json` 补 `dsh.verifiedAgainst: 0.2.2-rc.1`；槽位注册去掉不起作用的 `registrant` 字段。
+- **文档规范化（参照 `apps/dsh-next-multi-launcher` 的结构）**：`docs/` 分为导航 / 设计 / 参考 / 指南 / 经验 / 验收；新增 `docs/README.md`、`docs/design.md`、`docs/reference/{architecture,compatibility}.md`、`docs/guide/{configuration,troubleshooting}.md`、`docs/testing.md`、`docs/experience/`（6 条：症状→根因→证据）；`docs/RELEASE.md` 归档为 `docs/archive/release-1.2.0.md`；新增 `CONTRIBUTING.md`、`SECURITY.md`、Issue/PR 模板、`.editorconfig`、CI（push/PR 跑 `npm test`）；新增 `tools/check-docs.mjs` 校验相对链接与锚点并接入 `npm test`。**公开/私有的分工**：公开只记已发生的事实；路线图、决策记录、调研、本机环境、发版清单进 `docs-private/`（仅入口 README 入库，其余被 `.gitignore` 排除），结论稳定后再升级为公开文档。
 
 ### Removed
 
