@@ -38,7 +38,7 @@ Works on **Windows · macOS · Linux** (DSH Web GUI) — plain JavaScript, no na
 dsh plugin --profile web add dsh-better-session-topbar
 
 # from GitHub (equivalent; pins a tag or commit)
-dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.0
+dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.1
 ```
 
 - **Consider locking a commit**: a GitHub install pulls the repository source, so later pushes don't silently change what you run. To pin the exact content, use `github:xinspark/dsh-better-session-topbar#<commit-sha>` (as recommended by the official docs).
@@ -46,7 +46,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.0
 
   ```sh
   dsh plugin --profile web add ./dsh-better-session-topbar
-  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.0.tgz
+  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.1.tgz
   ```
 
 Then start the Web UI: `dsh web` (or `dsh --profile web`). The first `add` auto-initializes the profile with `@deepseek-ai/dsh-base`.
@@ -68,7 +68,7 @@ The bundle patch (`cordis.patch.yml`) registers both the host and client halves 
 | Session dropdown | Session list of the current workspace (relative-time meta), New session, row "more": pin / rename / fork / copy Session ID / archive session (the host menu, shown by permission). |
 | Native-consistent interactions | The dropdown is a self-drawn layer that reuses the native menu tokens (`--dsw-elevation-prominent`, `--dsw-radius-lg`, `--dsw-menu-surface-fill` + `--dsw-menu-backdrop-filter`, hover fill `--dsw-alias-interactive-bg-hover`); its row metrics are min-height 40 / padding 8·10 / 14px·22px (matching the native `AccountMenu` `[role=menuitem]`; the native `Menu.module.css` is more compact and this plugin does not follow it). Its keyboard/ARIA model mirrors the native `Menu`: focus the first row on open, `ArrowUp/Down`, `Home/End`, `Tab` closes, `Esc` closes and returns focus. The inline "more" menu **is the host's own** (`contextMenus`): entries, order, permission gating, shortcut keycaps and the rename/delete dialogs all come from ui-workspace; this plugin only passes the target and the viewport point. |
 | Shared lifecycle | The host menu follows its owning dropdown: it is taken down with it (outside click / Escape / selection / switching) — no orphan overlay. |
-| Plugin page | Plugins → this plugin → Configure: **narrow-screen session title display** (a two-option selector shaped like DSH's own appearance cubes — Breadcrumb / Session title, each with its trade-off spelled out) and the **probe log** switch. Both apply immediately and persist to the profile's Cordis patch. The page ends with one line: "⭐ Finding it useful? Star it on GitHub" (the repository link comes from the host footer; this line adds none). |
+| Plugin page | Plugins → this plugin → Configure: **narrow-screen session title display** (a two-option selector shaped like DSH's own appearance cubes — Breadcrumb / Session title, each with its trade-off spelled out) and the **probe log** switch. Both apply immediately and persist to the profile's Cordis patch. The page ends with one line: "⭐ Finding it useful? Star it on GitHub", rendered in the host's detail-section slot **above** the market source row ("View repository"); this line adds no link itself. |
 | Languages | All plugin-owned copy follows the eight DSH languages (zh / en / ja / de / es / fr / pt / ru) live, with a per-language `locale/*.json` meta title and description. **The ja / de / es / fr / pt / ru copy is machine translation** (lightly proofread) — see Known limitations. |
 
 ## Screenshots
@@ -142,7 +142,7 @@ Quick reference:
 
 - **Add a row action** — not here: the inline menu comes from the host, whose entries are registered per `target` in ui-workspace. This plugin only decides which rows carry `more` (see `wsListItems` / `ssListItems`).
 - **Add copy** — the eight dictionaries (`BST_ZH` / `BST_EN` / `BST_JA` / `BST_DE` / `BST_ES` / `BST_FR` / `BST_PT` / `BST_RU`) share one key set, so a new key must be added to all eight; `npm test` enforces the key sets and fails otherwise.
-- **Add the star prompt line to another plugin's page (the shared pattern)** — call `bstStarLine(label)` with one dictionary key; the star is the `⭐` character (no hand-drawn icon) and the line adds **no** "view repository" link (the host footer already has one), which keeps the intrusion minimal.
+- **Add the star prompt line to another plugin's page (the shared pattern)** — register the official `plugins.detail.section` (`id: bst-star`, `order: 80`, below the market source row's 90) and filter by `subject.pkg.name` so other plugins' pages return `null`; the star is the `⭐` character (no hand-drawn icon) and the line adds **no** "view repository" link (the host footer already has one), which keeps the intrusion minimal.
 - **Tweak dropdown styles** — edit the `.bst-item*` rules in `insertStyle` (tokens match the native Menu).
 - **Diagnostics are off by default; the switch lives on the plugin page** — normal use writes nothing to the console. Turn on **Probe logs** under Plugins → this plugin → Configure (applies immediately, no reload). The three prefixes are `[bst-dom]` (structural probe), `[bst-chip]` (chip discovery and ladder conclusions) and `[bst-perf]` (only emitted when a single pass takes longer than 60ms). While it is off, even the structural probe's measurements are skipped. The value is stored in the profile's `cordis.patch.yml`, so it follows the profile.
 - **A host-half change does not need an app restart** — verified live: client changes apply on refresh, and an `index.js` change is picked up by toggling this row off and on in the Plugins page (`已关闭 → 运行中`), which re-imports it so a newly declared `Config` takes effect immediately.
@@ -178,7 +178,7 @@ This plugin sits on DSH's internal contracts (there is no stable third-party API
 
 ## Known limitations
 
-- **The inline "⋯" needs DSH 0.2.2-rc.1+** (the `contextMenus` service). On earlier kernels the breadcrumb and both dropdowns still work; the entry is simply absent — the sidebar remains the full entry, and this plugin keeps no second menu.
+- **The inline "⋯" needs DSH 0.2.2-rc.1+** (the `contextMenus` service). On earlier kernels the breadcrumb and both dropdowns still work; the entry is simply absent — the sidebar remains the full entry, and this plugin keeps no second menu. The star line also needs 0.2.2-rc.1+ (`plugins.detail.section`); older kernels just lose that one line.
 - **The plugin's own copy**: all eight official languages are covered (zh / en / ja / de / es / fr / pt / ru) and follow the DSH language switch live.
 - **The six added languages are machine translation** (ja / de / es / fr / pt / ru, lightly proofread), so some phrasing may read unnaturally or miss your preferred terminology — issues and pull requests are welcome: the copy lives in `BST_JA` / `BST_DE` / `BST_ES` / `BST_FR` / `BST_PT` / `BST_RU` in `lib/client.js`, and the package title/description in `locale/*.json`. Chinese and English are written by hand.
 - **Relative links in the npm README**: on the registry-rendered package page, relative links into `docs/` and the screenshots may 404 (they work on GitHub); treat the GitHub repository page as the source of truth.

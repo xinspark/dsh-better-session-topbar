@@ -223,10 +223,23 @@ const sameKeys = (a, b) => a.size === b.size && [...a].every((key) => b.has(key)
   const page = settings.Comp({ view: 'page' })
   const summary = settings.Comp({ view: 'summary' })
   if (!page || !summary) throw new Error('settings page returned nothing')
-  const starLine = collectType(page, 'p').find((node) => node.props.className === 'bst-star-line')
-  if (!starLine) throw new Error('settings page lost the star line')
-  if (collectText(starLine).join(' ').trim() === '') {
-    throw new Error('star line has no text')
+  // 求星行不在配置页里：它挂在官方 plugins.detail.section（见下）
+  if (collectType(page, 'p').some((node) => node.props.className === 'bst-star-line')) {
+    throw new Error('star line must not live inside the config page')
+  }
+  const detail = registered.find((r) => r.options && r.options.name === 'plugins.detail.section')
+  if (!detail) throw new Error('detail section not registered')
+  if (detail.options.id !== 'bst-star') throw new Error('star section id changed')
+  if (!(typeof detail.options.order === 'number' && detail.options.order < 90)) {
+    throw new Error('star section must sort before the market source row (order 90)')
+  }
+  const detailOurs = detail.Comp({ subject: { kind: 'row', pkg: { name: 'dsh-better-session-topbar' }, row: { rowId: 'x' } } })
+  const starLine = detailOurs && collectType(detailOurs, 'p').find((node) => node.props.className === 'bst-star-line')
+  if (!starLine) throw new Error('star section lost the star line')
+  if (collectText(starLine).join(' ').trim() === '') throw new Error('star line has no text')
+  if (starLine.props['data-bst-star'] !== 'detail') throw new Error('star line lost its detail marker')
+  for (const subject of [{ kind: 'bundle', pkg: { name: 'other-plugin' } }, { kind: 'item', id: 'x' }, undefined]) {
+    if (detail.Comp({ subject }) !== null) throw new Error('star section must filter by subject.pkg.name')
   }
   const lists = collectLists(renderCrumb(registered, list))
   const ws = itemsOf(lists, 'add')

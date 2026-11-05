@@ -29,6 +29,7 @@
 | --- | --- | --- |
 | `conversation.session.header.actions` | `id: bst-breadcrumb`, `order: -40` | 顶栏最前；不依赖同槽其它项的具体数字 |
 | `plugins.row.config` | `key: <包名>#<行 id>`, `locale: <包名>` | 详情页；键 = 插件管理器分发的键 |
+| `plugins.detail.section` | `id: bst-star`, `order: 80` | 详情页底部求星行；按 `subject.pkg.name` 自过滤；`order` 必须小于市场来源行 `dsh-market-source` 的 90（该槽的注册 schema 只有 `id`/`order`/`label`，别传 `locale`/`registrant` 这类不认的字段） |
 | `sidebar.workspaces.directoryFlow` | 只读 `slots.entries()` 判断占用者 | 「添加工作区」交给宿主 |
 | `conversation.hero.workspace.directoryFlow` | 同上 | 同上 |
 

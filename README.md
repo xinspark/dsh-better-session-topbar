@@ -38,7 +38,7 @@
 dsh plugin --profile web add dsh-better-session-topbar
 
 # 从 GitHub 安装（等价；可锁 tag 或 commit）
-dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.0
+dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.1
 ```
 
 - **建议锁定 commit**：GitHub 安装拉取的是仓库源码，tag 之后的新推送不会自动影响已安装版本；如需把运行内容严格固定到某个提交，用 `github:xinspark/dsh-better-session-topbar#<commit-sha>`（官方文档推荐做法）。
@@ -46,7 +46,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.0
 
   ```sh
   dsh plugin --profile web add ./dsh-better-session-topbar
-  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.0.tgz
+  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.1.tgz
   ```
 
 然后启动 Web UI：`dsh web`（或 `dsh --profile web`）。首次 `add` 会自动用 `@deepseek-ai/dsh-base` 初始化 profile。
@@ -68,7 +68,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.0
 | 会话下拉 | 当前工作区的会话列表（含相对时间元信息）、新建会话、行内「更多」：置顶 / 重命名 / 分支 / 复制 Session ID / 归档会话（宿主菜单，按权限显示）。 |
 | 原生一致的交互 | 下拉为自绘层，卡片沿用原生菜单 token（`--dsw-elevation-prominent`、`--dsw-radius-lg`、`--dsw-menu-surface-fill` + `--dsw-menu-backdrop-filter`、hover 填充 `--dsw-alias-interactive-bg-hover`）；行内度量为 min-height 40 / padding 8·10 / 14px·22px（与原生 `AccountMenu` 的 `[role=menuitem]` 一致；原生 `Menu.module.css` 更紧凑，本插件未跟随）。键盘/ARIA 与原生 `Menu` 同构：打开聚焦首行、`ArrowUp/Down`、`Home/End`、`Tab` 收起、`Esc` 收起并归还焦点。行内「更多」本体是**宿主的右键菜单**（`contextMenus` 服务）：条目、顺序、权限门控、快捷键键帽、重命名/删除对话框全由 ui-workspace 渲染；插件只传目标与坐标。 |
 | 生命周期一致 | 宿主菜单跟随其所在下拉同生命周期：下拉关闭（点击外部 / Escape / 选择 / 切换）时一并收走，不残留孤立浮层。 |
-| 插件详情页 | Plugins → 本插件 → 配置：**窄屏会话标题显示选择**（原生外观方块样式的二选一：面包屑模式 / 标题模式，每个选项旁写明优缺点）与**探针日志**开关。写入 profile 的 Cordis patch，即时生效。页面底部一行「⭐ 用着顺手？给个 Star 支持一下」（「查看仓库」由宿主页脚提供，本行不重复造链接）。 |
+| 插件详情页 | Plugins → 本插件 → 配置：**窄屏会话标题显示选择**（原生外观方块样式的二选一：面包屑模式 / 标题模式，每个选项旁写明优缺点）与**探针日志**开关。写入 profile 的 Cordis patch，即时生效。详情页底部一行「⭐ 用着顺手？给个 Star 支持一下」（在宿主市场来源行「查看仓库」上方；本行不重复造链接）。 |
 | 多语言 | 插件自有文案全部跟随 DSH 的 8 种官方语言（中/英/日/德/西/法/葡/俄）实时切换，`locale/*.json` 的标题/描述也各备一份。**其中日/德/西/法/葡/俄为机器翻译**（人工粗校），见「已知限制」。 |
 
 ## 截图
@@ -142,7 +142,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.0
 
 - **新增行操作** —— 不要在这里加：行内菜单由宿主菜单提供，条目在 ui-workspace 里按 `target` 注册。插件这边只决定「给哪个目标挂 `more`」（见 `wsListItems` / `ssListItems`）。
 - **新增文案** —— 八本字典（`BST_ZH` / `BST_EN` / `BST_JA` / `BST_DE` / `BST_ES` / `BST_FR` / `BST_PT` / `BST_RU`）是同一套键，新增 key 必须同时补齐八本；`npm test` 会强校验键集，漏一本直接红。
-- **详情页底部加一行求星提示（通用示范）** —— 调 `bstStarLine(label)` 并加一个文案键；星形用 `⭐` 字符（不自绘图标），**不要**再画「查看仓库」链接（宿主页脚已有），侵入度最低。
+- **详情页底部加一行求星提示（通用示范）** —— 注册官方 `plugins.detail.section`（`id: bst-star`、`order: 80`，小于市场来源行的 90），组件按 `subject.pkg.name` 自过滤、别的插件页返回 `null`；星形用 `⭐` 字符（不自绘图标），**不要**再画「查看仓库」链接（宿主页脚已有），侵入度最低。
 - **调整下拉样式** —— 修改 `insertStyle` 中的 `.bst-item*` 规则（token 与原生 Menu 一致）。
 - **诊断日志默认关闭，开关在插件详情页** —— 正常使用不往控制台写任何东西。在 Plugins → 本插件 → 配置 里打开「探针日志」即可（即时生效，不必刷新），三枚前缀分别是 `[bst-dom]`（结构探针）、`[bst-chip]`（chip 探测与阶梯结论）、`[bst-perf]`（单趟测量超过 60ms 才有的慢趟记录）。日志关着时连结构探针的测量都不跑。写在 profile 的 `cordis.patch.yml` 里，跟随 profile。
 - **改完 host 半不用重启 app** —— 实机验证过的做法：客户端改动刷新页面即可；`index.js` 这类 host 改动在插件页把本行关掉再打开（`已关闭 → 运行中`）就会重新导入，新注册的 `Config` 立刻生效。
@@ -178,7 +178,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.0
 
 ## 已知限制
 
-- **行内「⋯」需要 DSH 0.2.2-rc.1+**（`contextMenus` 服务）。更早的内核上面包屑与两个下拉照常工作，只是没有这个入口 —— 侧栏仍是完整入口，插件不保留第二套菜单。
+- **行内「⋯」需要 DSH 0.2.2-rc.1+**（`contextMenus` 服务）。更早的内核上面包屑与两个下拉照常工作，只是没有这个入口 —— 侧栏仍是完整入口，插件不保留第二套菜单。详情页求星行同样依赖 0.2.2-rc.1+ 的 `plugins.detail.section` 槽（旧内核只是少一行）。
 - **插件自有文案**：8 种官方语言全量覆盖（中/英/日/德/西/法/葡/俄），跟随 DSH 语言实时切换。
 - **6 种新增语言是机器翻译**（日/德/西/法/葡/俄，人工只做了粗校），个别措辞可能不自然或不符合你的术语习惯 —— 欢迎提 Issue 或 PR 纠正：文案在 `lib/client.js` 的 `BST_JA` / `BST_DE` / `BST_ES` / `BST_FR` / `BST_PT` / `BST_RU`，包标题与描述在 `locale/*.json`。中/英为人工撰写。
 - **npm 包页面的 README 相对链接**：registry 渲染的 README 里，指向 `docs/` 与截图的相对路径可能 404（GitHub 上正常）；以 GitHub 仓库页为准。

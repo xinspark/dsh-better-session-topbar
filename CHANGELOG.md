@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-11-06
+
+### Changed
+
+- **求星行改挂官方 `plugins.detail.section`**（`id: bst-star`、`order: 80`，小于市场来源行 `dsh-market-source` 的 90）：不再塞进配置页，组件 `BstStarSection` 按 `subject.pkg.name` 自过滤（别人的插件页返回 `null`），所以它出现在「查看仓库」上方而不是之后；旧内核没有该槽时只是少一行。冒烟测试覆盖本插件 / 其他包 / `item` / 无 `subject` 四种输入，并断言 `order < 90`。
+
 ## [2.0.0] - 2026-11-05
 
 **行内「更多」交给宿主**：不再自己实现会话/工作区菜单，改为调用 DSH 0.2.2-rc.1 起的 `contextMenus` 服务。插件删掉五个动作、两套重命名/删除对话框与权限判断；菜单条目、顺序、权限门控、快捷键、对话框全部由 ui-workspace 渲染。

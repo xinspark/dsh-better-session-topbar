@@ -6,7 +6,7 @@
 
 | 命令 | 覆盖 | 不覆盖 |
 | --- | --- | --- |
-| `npm test` | 用桩 React/primitives 执行工厂与组件渲染体；覆盖「有/无 `contextMenus`」两种场景；八本字典键集一致、值非空、`en` 无 CJK、`locale/*.json` meta 完整；设置页求星行存在 | 外观、真实宿主行为 |
+| `npm test` | 用桩 React/primitives 执行工厂与组件渲染体；覆盖「有/无 `contextMenus`」两种场景；八本字典键集一致、值非空、`en` 无 CJK、`locale/*.json` meta 完整；求星行注册在 `plugins.detail.section`（`order < 90`）且按 `subject.pkg.name` 过滤 | 外观、真实宿主行为 |
 | `npm run check:instance` | 直接读当前实例 `app.asar`：primitives 导出、四个槽位名、三个顶栏 DOM 锚点与 lineage 槽、`workspaces` / `uiWorkspace` 方法（按代码实际调用抽取）、`contextMenus` 服务、原生会话菜单注册、`workspace.add`、`locale` 入口、8 语言 chip 关键字、目录选择 occupant、preload 桥 | 运行时交互 |
 | `node tools/check-docs.mjs` | 文档相对链接与锚点（CI 里随 `npm test` 一起跑） | 文档内容正确性 |
 
@@ -20,7 +20,7 @@
 | 4 | 工作区下拉 | 切换工作区；「添加工作区」走宿主（native=系统对话框，browse=官方面板）；行内「⋯」弹宿主菜单 |
 | 5 | 会话下拉 | 切换、新建；行内「⋯」/右键弹宿主菜单；置顶、复制 ID（有「已复制」提示）、归档 |
 | 6 | 键盘 | 打开后焦点在首行；`↑↓`、`Home/End`、`Tab` 收起、`Esc` 归还焦点 |
-| 7 | 详情页 | 两个设置即时生效；底部求星行（`⭐` 字符）；切换 8 种语言后文案跟随 |
+| 7 | 详情页 | 两个设置即时生效；底部求星行（`⭐` 字符，位于市场「查看仓库」上方）；切换 8 种语言后文案跟随 |
 | 8 | 清理 | 插件行关掉后，原生 chip 的文本/属性恢复、样式标签移除 |
 | 9 | 老内核降级 | 0.2.1 及更早：面包屑与下拉可用、无「⋯」、无报错 |
 
