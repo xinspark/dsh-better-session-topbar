@@ -13,11 +13,11 @@
 //      对 volatile 字段而言下一次读取即生效，无需重启。
 import z from '@deepseek-ai/schemastery'
 
-export const name = '更好的会话顶栏'
+export const name = 'dsh-better-session-topbar'
 
 // 命名空间 = 包名（package.json 的 name = `dsh-better-session-topbar`），也是 bundle 行 id：
 // 三者必须一致，否则设置读写的键对不上。包名只能用 ASCII（npm 拒绝 CJK 包名），
-// 中文名只出现在 locale 的 meta.title 和这里的 `name` 显示串上。
+// 中文名只出现在 locale 的 meta.title 里（官方与同行的 host 半 `name` 都是包名）。
 // 默认值必须与 lib/client.js 里的 `bstSettings` 初值一致：面包屑 + 日志关 ——
 // 老用户升级后行为与 1.3.4 完全相同，控制台也保持安静。
 //
@@ -33,13 +33,15 @@ export const Config = z.object({
 
 export function apply(ctx) {
   // 本插件自带详情页（lib/client.js 注册 `plugins.row.config`），所以把「按 schema 自动
-  // 生成的表单」关掉，免得同一个页面上出现两份设置。官方约定：在 `ctx.inject(['settings'], …)`
-  // 子级里注册 `configure({ auto: false }, ctx.fiber)`，并交给 ctx.effect 管理生命周期；
-  // 组合里没有 settings 服务时这段根本不执行，插件照常工作。
-  ctx.inject(['settings'], (ctx) => {
-    ctx.effect(
-      () => ctx.settings.configure({ auto: false }, ctx.fiber),
-      'better-session-title: settings presentation',
+  // 生成的表单」关掉，免得同一个页面上出现两份设置。
+  // 官方写法（dsh-agent-default-model / dsh-agent-preset-registry 同款）：在
+  // `ctx.inject(['settings'], …)` 子级里 `configure({ auto: false }, <插件自身的 fiber>)`，
+  // 并交给 `child.effect` 管理生命周期 —— configure 的第二个参数是「配置归属的 fiber」，
+  // 必须传外层（插件）的 fiber，不是 inject 子级的。
+  ctx.inject(['settings'], (settingsCtx) => {
+    settingsCtx.effect(
+      () => settingsCtx.settings.configure({ auto: false }, ctx.fiber),
+      'better-session-topbar: settings presentation',
     )
   })
 }

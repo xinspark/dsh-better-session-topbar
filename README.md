@@ -22,11 +22,11 @@
 - **顶栏三枚原生 chip 一并对齐** —— 子智能体 / 智能体团队 / 后台任务与面包屑用同一套度量（字号、内距、圆角、悬停、图标尺寸），并按固定次序让出宽度：chip 交数字 → 标题让位收成图标 → chip 收成图标。
 - **窄屏二选一** —— 空间真的不够时，可以选「面包屑模式」（收成图标，层级与切换都还在）或「标题模式」（整行只留会话标题）；两种模式的取舍写在插件详情页的选项旁。
 
-行内操作全部复用 DSH 原生能力：重命名工作区/会话、删除工作区、分支会话、归档会话，与原生侧边栏行为完全一致。
+行内「更多」直接调用宿主的右键菜单服务：置顶 / 重命名 / 分支 / 复制 Session ID / 归档 / 删除工作区，权限门控、快捷键提示、重命名与删除对话框全部由 DSH 自己渲染 —— 与侧边栏右键菜单逐项一致，插件不再维护第二套。
 
 支持 **Windows · macOS · Linux**（DSH Web GUI）——纯 JavaScript，无原生依赖，分发无需构建步骤。
 
-> 验证基线：**DSH NEXT 2.0.21-next（内置 DeepSeek Harness 0.2.1-rc.4）** 与 `dsh web`；2.0.20 / 0.2.1-rc.3、0.2.1-rc.2、0.2.0-rc.2 仍在兼容范围内（rc.3 → rc.4 逐项对账零迁移）。其它版本未经验证。
+> 验证基线：**DSH NEXT 2.0.22-next（内置 DeepSeek Harness 0.2.2-rc.1）** 与 `dsh web`。行内「更多」菜单依赖 0.2.2-rc.1 起的 `contextMenus` 服务；更早的内核（0.2.1-rc.4 / 0.2.1-rc.3 / 0.2.1-rc.2 / 0.2.0-rc.2）上面包屑与两个下拉照常工作，只是行尾不显示「⋯」（侧栏仍是完整入口）。其它版本未经验证。
 
 ## 安装
 
@@ -63,10 +63,10 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
 | 逐级压缩 | 顶栏放不下时按固定次序让位：三枚原生 chip（子智能体 / 智能体团队 / 后台任务）先 `full → count`（文字换成 `(N)`）→ **面包屑整条收成图标**（统计数留着，长标题最不值钱）→ chip 再 `count → icon`。判据是实测的可用宽度，不记顶栏宽度做滞回 —— 标题变短、chip 消失后会自己展开回来。 |
 | 窄屏显示方式 | 插件详情页二选一：**面包屑模式**（默认，保留「工作区 / 会话」层级，收成图标后仍可逐级点开切换，代价是最窄时只剩图标、标题全文要悬停或点开才看得到）或**标题模式**（整行只留当前会话标题，子智能体会话保留「父 / 当前」，长标题更完整，代价是工作区与切换收进下拉、极窄时父级变成上下箭头图标）。两种选择都在同一个折叠点上生效，切换即时预览。 |
 | 三枚 chip 同构 | 子智能体 / 智能体团队 / 后台任务统一成「图标 · 文字 · (N) · 圆环 · 箭头」：12px/18 字号、`3px 7px` 内距、5px 间距、28px 高、14px 图标、12px 箭头、圆角与悬停填充一致；原生缺的补上（智能体团队补成员数与运行中圆环，圆环与官方 spinner 同相），原生多出来的归位（后台任务的运行圆点移到统计数之后）。 |
-| 工作区下拉 | 工作区列表（含会话数元信息）、添加工作区（交给宿主目录选择，与侧栏 + 一致）、行内更多：重命名 / 删除工作区。 |
-| 会话下拉 | 当前工作区的会话列表（含相对时间元信息）、新建会话、行内更多：重命名 / 分支 / 归档会话。 |
-| 原生一致的交互 | 下拉为自绘层，卡片沿用原生菜单 token（`--dsw-elevation-prominent`、`--dsw-radius-lg`、`--dsw-menu-surface-fill` + `--dsw-menu-backdrop-filter`、hover 填充 `--dsw-alias-interactive-bg-hover`）；行内度量为 min-height 40 / padding 8·10 / 14px·22px（与原生 `AccountMenu` 的 `[role=menuitem]` 一致；原生 `Menu.module.css` 更紧凑，本插件未跟随）。更多菜单、重命名/删除对话框全部使用原生 `Menu` / `Modal` / `Button` / `Input`（autoFocus、全选、输入法组合 Enter 防误触、工作区重复名校验、错误行）。 |
-| 生命周期一致 | 更多菜单跟随其所在下拉同生命周期：下拉关闭（点击外部 / Escape / 选择 / 切换）时菜单一并关闭，不残留孤立菜单。 |
+| 工作区下拉 | 工作区列表（含会话数元信息）、添加工作区（交给宿主目录选择，与侧栏 + 一致）、行内「更多」：重命名 / 删除工作区（宿主菜单，按权限显示）。 |
+| 会话下拉 | 当前工作区的会话列表（含相对时间元信息）、新建会话、行内「更多」：置顶 / 重命名 / 分支 / 复制 Session ID / 归档会话（宿主菜单，按权限显示）。 |
+| 原生一致的交互 | 下拉为自绘层，卡片沿用原生菜单 token（`--dsw-elevation-prominent`、`--dsw-radius-lg`、`--dsw-menu-surface-fill` + `--dsw-menu-backdrop-filter`、hover 填充 `--dsw-alias-interactive-bg-hover`）；行内度量为 min-height 40 / padding 8·10 / 14px·22px（与原生 `AccountMenu` 的 `[role=menuitem]` 一致；原生 `Menu.module.css` 更紧凑，本插件未跟随）。键盘/ARIA 与原生 `Menu` 同构：打开聚焦首行、`ArrowUp/Down`、`Home/End`、`Tab` 收起、`Esc` 收起并归还焦点。行内「更多」本体是**宿主的右键菜单**（`contextMenus` 服务）：条目、顺序、权限门控、快捷键键帽、重命名/删除对话框全由 ui-workspace 渲染；插件只传目标与坐标。 |
+| 生命周期一致 | 宿主菜单跟随其所在下拉同生命周期：下拉关闭（点击外部 / Escape / 选择 / 切换）时一并收走，不残留孤立浮层。 |
 | 插件详情页 | Plugins → 本插件 → 配置：**窄屏会话标题显示选择**（原生外观方块样式的二选一：面包屑模式 / 标题模式，每个选项旁写明优缺点）与**探针日志**开关。写入 profile 的 Cordis patch，即时生效。 |
 | 双语言 | 内置 zh/en 双语言字典，跟随 DSH 语言切换实时生效。 |
 
@@ -80,7 +80,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
 
 ![会话下拉](docs/screenshots/session-dropdown.png)
 
-**会话更多菜单**——悬停行尾，重命名/分支/归档：
+**会话更多菜单**——悬停行尾的「⋯」打开宿主会话菜单（置顶 / 重命名 / 分支 / 复制 Session ID / 归档）：
 
 ![会话更多菜单](docs/screenshots/session-more-menu.png)
 
@@ -102,8 +102,9 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
 
 - 点击**工作区**一侧：展开工作区下拉（顶部为「添加工作区」）。
 - 点击**会话**一侧：展开会话下拉（顶部为「新建会话」）。
-- 悬停列表行：行尾显示「更多」按钮（重命名 / 分支 / 归档等，按行类型而定）。
+- 悬停列表行：行尾显示「⋯」—— 打开的是宿主自己的右键菜单（置顶 / 重命名 / 分支 / 复制 Session ID / 归档，按权限显示）。
 - 选择行即切换；点击空白处或按 `Esc` 关闭下拉。
+- 键盘：下拉打开后 `↑` / `↓`、`Home` / `End` 移动，`Tab` 收起，`Esc` 收起并把焦点还给触发按钮。
 - 顶栏挤不下时按固定次序让位；想换窄屏的显示方式，去 Plugins → 更好的会话顶栏 → 配置。
 
 ## 与官方项目的关系
@@ -116,20 +117,20 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
 - **`lib/client.js`** —— 浏览器半（UMD，注册进 DSH `clientModules`）。结构自上而下：
   1. 本地基础工具：样式注入 / 定时器。
   2. **双语字典**（`BST_ZH` / `BST_EN`）—— 注册进 `ctx.locale`，跟随语言切换；`bstT()` 带 fallback。
-  3. **自绘下拉列表** `BstList` —— 沿用原生菜单样式与 token；定位避让视口边缘；`click` 外部关闭（不用 mousedown/pointerdown：它们先于 `click` 派发，会先行卸载列表、吃掉行内 click）。
-  4. `WorkspaceTitleBreadcrumb` —— 注册进 `conversation.session.header.actions`（`order: -40`，顶栏最左）；逐级自适应图标态（该级标签被挤到可见宽度 < `ICONIC_TEXT_FLOOR` 才换图标）+ 三枚原生 chip 的装饰与宽度阶梯（判据全部来自实测可用宽度 `avail()`，**不使用** header 宽度滞回 —— 折叠常由改名/新 chip 引起，按 header 宽度记基准会折下去解不开）；更多菜单与下拉同生命周期；重命名/删除走原生 Modal。
-  5. `apply(ctx)` —— 样式注入 + 槽位注册（顶栏面包屑 + 插件详情页）；`inject: ['slots','workspaces','sessions','uiWorkspace','locale']`（服务依赖必须声明，否则 apply 抢跑会把 `undefined` 永久固化进所有动作，表现为「界面正常、点了没反应」）。设置服务与快捷键服务都是**可选**依赖，走 `ctx.inject([...], …)` 子级：缺了只少一个设置界面 / 只少按键提示，不影响面包屑。
+  3. **自绘下拉列表** `BstList` —— 沿用原生菜单样式与 token；键盘/ARIA 与原生 `Menu` 同构（`role=menu` + 每行两个 `menuitem`、打开聚焦首行、`ArrowUp/Down`、`Home/End`、`Tab`/`Esc` 收起）；定位避让视口边缘；`click` 外部关闭（不用 mousedown/pointerdown：它们先于 `click` 派发，会先行卸载列表、吃掉行内 click）。
+  4. `WorkspaceTitleBreadcrumb` —— 注册进 `conversation.session.header.actions`（`order: -40`，顶栏最左）；逐级自适应图标态（该级标签被挤到可见宽度 < `ICONIC_TEXT_FLOOR` 才换图标）+ 三枚原生 chip 的装饰与宽度阶梯（判据全部来自实测可用宽度 `avail()`，**不使用** header 宽度滞回 —— 折叠常由改名/新 chip 引起，按 header 宽度记基准会折下去解不开）；行内「更多」不渲染菜单本体，只把 `{kind, value}` 目标交给宿主的 `contextMenus.open(目标, 视口坐标)`，并在下拉全关时收走它。
+  5. `apply(ctx)` —— 样式注入 + 槽位注册（顶栏面包屑 + 插件详情页）；`inject: ['slots','workspaces','uiWorkspace','locale']`（服务依赖必须声明，否则 apply 抢跑会把 `undefined` 永久固化进所有动作，表现为「界面正常、点了没反应」）；服务按官方写法**直接读** `ctx.<service>`。**可选**依赖一律走 `ctx.inject([...], …)` 子级：`configForms`（详情页）、`shortcuts`（`workspace.add` 探活）、`contextMenus`（行内「更多」）—— 缺了只少那一个入口，不影响面包屑。
 
 - **改动后的最低验证** —— `npm test`（`test/render-smoke.cjs`：用桩 React/primitives 执行工厂与面包屑、设置页的渲染体，能抓住「删了代码但还有悬空引用」这类错误；它不验外观）。发布前仍要按「DSH 升级维护清单」实机点一遍。
 
 扩展速查：
 
-- **新增行操作** —— 在 `wsListItems` / `ssListItems` 的 `actions` 数组加一项（`{ id, label, icon?, danger?, action }`）。
+- **新增行操作** —— 不要在这里加：行内菜单由宿主菜单提供，条目在 ui-workspace 里按 `target` 注册。插件这边只决定「给哪个目标挂 `more`」（见 `wsListItems` / `ssListItems`）。
 - **新增文案** —— 在 `BST_ZH` / `BST_EN` 字典加 key。
 - **调整下拉样式** —— 修改 `insertStyle` 中的 `.bst-item*` 规则（token 与原生 Menu 一致）。
 - **诊断日志默认关闭，开关在插件详情页** —— 正常使用不往控制台写任何东西。在 Plugins → 本插件 → 配置 里打开「探针日志」即可（即时生效，不必刷新），三枚前缀分别是 `[bst-dom]`（结构探针）、`[bst-chip]`（chip 探测与阶梯结论）、`[bst-perf]`（单趟测量超过 60ms 才有的慢趟记录）。日志关着时连结构探针的测量都不跑。写在 profile 的 `cordis.patch.yml` 里，跟随 profile。
 - **改完 host 半不用重启 app** —— 实机验证过的做法：客户端改动刷新页面即可；`index.js` 这类 host 改动在插件页把本行关掉再打开（`已关闭 → 运行中`）就会重新导入，新注册的 `Config` 立刻生效。
-- **schema 依赖 schemastery（peer）** —— host 半的 `Config` 用 `@deepseek-ai/schemastery` 构造，`package.json` 里声明为 peerDependencies（profile 根目录已随 DSH 提供）。**本地以 symlink 安装时**要注意：Node 默认按真实路径解析，插件会找不到 profile 下的这个包 —— 需要在仓库里放一个指向它的 `node_modules/@deepseek-ai/schemastery`（junction/symlink，`node_modules/` 已被 .gitignore 忽略）；真目录安装（`dsh plugin add`）不需要这一步。
+- **schema 依赖 schemastery（peer）** —— host 半的 `Config` 用 `@deepseek-ai/schemastery` 构造，`package.json` 里声明为 peerDependencies。**以 junction/symlink 安装时**要注意：Node 按真实路径解析，插件会找不到 `node_modules/@deepseek-ai/schemastery` —— 需要在仓库自身或**上层目录**能解析到它（本机开发树的上一层 `plugins/node_modules` 就提供了它，所以仓库自己的 `node_modules/@deepseek-ai` 是空的也照常加载）；真目录安装（`dsh plugin add`）不需要这一步。
 - **窄屏模式是枚举不是布尔** —— `narrowMode` 取 `'crumb' | 'title'`（host 端 `z.union([z.const(...), z.const(...)])`）。1.3.4 及更早存的是布尔 `narrowTitle`，字段改名后旧值会被 schema 丢弃，升级后回到默认「面包屑模式」，去详情页重选即可。
 - **选择器为什么不用 SegmentedControl** —— 原生 `SegmentedControl` 是 tablist→panel 语义（每个选项带 `aria-controls` 指向面板），这里没有面板，用它就会产出悬空的 `aria-controls`。详情页的两选一改用与 DSH 设置页「外观」三选一同一套方块（thumbnail/cube）：`.5px` 描边、`--dsw-radius-xl`、选中换 `--dsw-alias-bg-module-platform` + `--dsw-static-neutral-bluish-400`，`aria-pressed` 表达选择。
 - **窄屏标题态的几个不变量** —— ① 工作区级靠 `data-bst-level="ws"` 用 `display:none` 藏起，**不要**改成不渲染（`crumbNeed` 按 `.bst-crumb-btn` 数量推导，删掉会让阈值 285→151，出现「藏起来→放得下→再显示」的翻动）；② 这一态强制文本（`setIconic('')`），否则阶梯会把末级收成图标，与「标题」的语义冲突；③ 会话图标由 `span.bst-crumb-icon` 包着，只有标题态隐藏它，宽屏面包屑保留；④ 子智能体会话的「父 / 当前」在标题态还会再压一次：`per` 触底（=150）时父级变成原生上下箭头图标、宽度让给当前标题，`per` 回到 190 才展开 —— 图标是**例外**（`.bst-crumb-iconic .bst-crumb-icon` 在标题态要放回来），否则压缩后只剩一个空按钮。
@@ -150,12 +151,19 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v1.5.4
 | 检查项 | 位置 | 升级后怎么验 |
 | --- | --- | --- |
 | 包名三处一致 | `package.json` name / `cordis.patch.yml` 行 id / `__ModuleLoader__.load({id})` | 插件列表能加载、无「导入失败」 |
-| 槽位名 | `conversation.session.header.actions`、`sidebar.workspaces.directoryFlow`、`conversation.hero.workspace.directoryFlow`、`plugins.row.config` | 先跑 `npm run check:instance`（直接读 asar 逐项核对），再用 `cordis_inspect_query` 看名字与 props；同槽原生项顺序会变（rc.3 与 rc.4 相同：team -20、preset -10、cost-meter 1、subagent-catalog 10、job-list 20），本插件只依赖自己的 -40 |
-| 服务依赖 | 必需 `slots` / `workspaces` / `sessions` / `uiWorkspace` / `locale`；可选 `shortcuts` / `configForms` | 下拉动作可用、设置页存在 |
+| 槽位名 | `conversation.session.header.actions`、`sidebar.workspaces.directoryFlow`、`conversation.hero.workspace.directoryFlow`、`plugins.row.config` | 先跑 `npm run check:instance`（直接读 asar 逐项核对），再用 `cordis_inspect_query` 看名字与 props；同槽原生项顺序会变（rc.3 / rc.4：team -20、preset -10、subagent-catalog 10、job-list 20，rc.3/rc.4 还有 cost-meter 1；0.2.2-rc.1 实测 cost-meter 已不在同槽），本插件只依赖自己的 -40 |
+| 服务依赖 | 必需 `slots` / `workspaces` / `uiWorkspace` / `locale`；可选 `configForms` / `shortcuts` / `contextMenus` | 下拉动作可用、设置页存在；0.2.2+ 上「更多」能弹出宿主菜单 |
+| 行内「更多」 | 宿主的 `contextMenus` 服务（`ui-context-menu` provide）+ ui-workspace 的 `registerSessionMenus`（置顶/重命名/分支/复制 ID/归档） | 点开任一行的「⋯」：应看到宿主菜单；`npm run check:instance` 里对应两项应 PASS |
 | 目录选择交互 | 插件**不接管、不自绘**：`workspace.add` → 宿主 occupant（native = 官方 renderless → 系统选择器；browse = 官方应用内面板）；槽空时才兜底 preload 桥 `__DSH_DIRECTORY_PICKER__` / `pickDirectory()` | 四种组合各点一次「添加工作区」：native 宿主应直接见系统对话框，browse 宿主应见官方应用内面板 |
 | 顶栏 DOM 锚点 | `header[data-window-drag]` + `nav:has(~ div .bst-crumbs)`（0.2.0 的 `data-conversation-*` 已移除） | 原生标题被隐藏、窄屏切换正常 |
-| primitives 组件 | `Modal` / `Button` / `Input` / `Menu` / `Switch` / `*Regular` 图标 | 重命名/删除对话框与插件设置页各点开一次 |
-| 文案键 | 与原生菜单对齐（添加工作区 / 新会话 / 分支会话） | 中英各看一次 |
+| primitives 组件 | `Modal` / `Button` / `Switch` / `*Regular` 图标（`Menu` / `Input` 已随自建菜单移除） | 错误对话框与插件设置页各点开一次 |
+| 文案键 | 插件自有文案（添加工作区 / 新会话）；行内菜单文案属于宿主命名空间 | 中英各看一次 |
+
+## 已知限制
+
+- **行内「⋯」需要 DSH 0.2.2-rc.1+**（`contextMenus` 服务）。更早的内核上面包屑与两个下拉照常工作，只是没有这个入口 —— 侧栏仍是完整入口，插件不保留第二套菜单。
+- **插件自有文案只有中/英**：日语、德语、西班牙语、法语、葡萄牙语、俄语下显示英文（DSH 的语言回退链以 `en` 结尾），可读、不破版。
+- **三枚原生 chip 的装饰依赖官方文案识别**：已覆盖官方 0.2.2 的 8 种语言（中/英/日/德/西/法/葡/俄）；官方再新增语言时，把词干补进 `CHIP_HINTS` 即可（见 MAINTAINING §7）。面包屑本身与语言无关。
 
 ## 特别感谢
 

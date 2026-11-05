@@ -5,6 +5,38 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+**行内「更多」交给宿主**：不再自己实现会话/工作区菜单，改为调用 DSH 0.2.2-rc.1 起的 `contextMenus` 服务。插件删掉五个动作、两套重命名/删除对话框与权限判断；菜单条目、顺序、权限门控、快捷键、对话框全部由 ui-workspace 渲染。
+
+### Added
+
+- **置顶 / 取消置顶**、**复制 Session ID**（宿主会弹「已复制」提示）、**取消归档** —— 之前要么没有、要么是插件自己的实现；现在与侧栏右键菜单同源。
+- **下拉的键盘操作与原生 `Menu` 一致**：打开即聚焦首行，`ArrowUp`/`ArrowDown`/`Home`/`End` 轮巡，`Tab` 收起菜单，`Esc` 收起并把焦点还给触发按钮；触发按钮补 `aria-haspopup="menu"`，行尾「⋯」改为合法的第二个 `menuitem`（不再是 `menuitem` 里嵌 `button`）。
+- **权限门控**：没有某项权限时该条目不会出现（自建菜单做不到）。
+- **快捷键键帽**：菜单里直接显示官方当前绑定（`session.rename` / `session.fork` / `session.archive`），随用户改键变化。
+- **三枚原生 chip 的识别扩到官方 8 种语言**（中/英/日/德/西/法/葡/俄）：`CHIP_HINTS` 从 zh/en 扩到全部语言，统计数提取不再只认「以数字开头」（官方把数字放在词尾的语言同样认得出），并新增 `SWITCHER_HINTS`，避免把「切换子智能体：{标题}」标题里的数字当成计数。
+- `tools/check-instance.mjs` 新增三项对账：`contextMenus` 服务（`open(target, point)`）、ui-workspace 的原生会话菜单注册、8 语言 chip 文案关键字（官方改译文时会先红）；服务方法期望值改为从 `lib/client.js` **实际调用**处抽取（注释先剔除），删掉调用时对账表自动跟着缩。
+
+### Changed
+
+- **行内「更多」= 宿主菜单**：插件只把 `{kind: 'session'|'workspace', value}` 目标与视口坐标交给 `contextMenus.open(...)`；下拉全部关闭时显式收走浮层（我们的下拉根节点是 `role="menu"`，宿主的外部关闭会把它当成「菜单内部」）。
+- **与原生 sidebar 完全同一条调用路径**：坐标取触发按钮的 `left/bottom`（不再自己 +4）、先聚焦触发按钮（官方 close 时把焦点还回去）、同目标再次打开由宿主按「4px 内」判 toggle；行内右键也与原生行一致，在指针位置打开同一份菜单。
+- **移除 `sessions` 硬依赖**：重命名会话已交给宿主，`inject` 缩到 `slots` / `workspaces` / `uiWorkspace` / `locale`；`contextMenus` 是可选注入，缺席时（0.2.1 及更早）行尾不渲染「⋯」，侧栏仍是完整入口。
+- **团队 chip 的运行圆环改用槽 props 的 `useSessionStatus`**（与官方 agent-team 同源）：圆环状态与会话状态同一时刻，不再滞后一个摘要快照周期；老内核自动退回 `byId[...].running`。
+- 基线抬到 **DSH NEXT 2.0.22-next / Harness 0.2.2-rc.1**；README 中英、`lib/client.js` 顶部注释同步。
+- **工程习惯对齐官方/同行**：host 与 client 的 `name` 改为包名（中文标题只留在 `locale/*.json` 的 `meta.title`）；`settings.configure` 改传**插件自身**的 fiber；字典注册交给 `ctx.effect` 并在卸载时自动注销；locale 命名空间从旧包名 `better-session-title` 统一为 `dsh-better-session-topbar`；服务改为官方写法直接读 `ctx.<service>`（删掉 `ctx.get` 的服务缺失分支）；`package.json` 补 `dsh.verifiedAgainst: 0.2.2-rc.1`；槽位注册去掉不起作用的 `registrant` 字段。
+
+### Removed
+
+- 自建「更多」菜单与 `Menu` / `Input` 依赖、`wsRename` / `wsDelete` / `ssRename` 三套对话框、`forkSession` / `archiveSession` / `togglePin` / `copySessionId` / `renameKeyDown` 与相关 18 个文案键。
+- `lib/client.js` 里 `sessions` 服务、`useShortcut` 与 `.bst-more-menu` 兼容样式。
+
+### Notes
+
+- **老内核降级**：0.2.1-rc.4 及更早没有 `contextMenus`，面包屑与两个下拉照常工作，只是行尾没有「⋯」；这是刻意的（不保留第二套菜单）。
+- 测试：`test/render-smoke.cjs` 现在覆盖「有/无 `contextMenus`」两种场景，并断言会话/工作区行携带正确的目标形状、旧 `actions` 字段已不存在。
+
 ## [1.5.4] - 2026-10-30
 
 **跟随本地实例升级（DSH NEXT 2.0.21-next / DeepSeek Harness 0.2.1-rc.4）**：逐项对账结论是**零迁移** —— 界面行为与 1.5.3 完全相同，代码只动注释；新增一条可复跑的对账命令，把「升级后人工核对 10 类耦合点」变成一次执行。

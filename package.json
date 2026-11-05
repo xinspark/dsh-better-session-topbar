@@ -46,6 +46,7 @@
     "CHANGELOG.md"
   ],
   "dsh": {
+    "verifiedAgainst": "0.2.2-rc.1",
     "bundle": {
       "patch": "./cordis.patch.yml"
     },

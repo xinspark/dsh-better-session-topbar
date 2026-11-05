@@ -114,6 +114,48 @@ function primitivesExports(bundle) {
   return names
 }
 
+// 服务方法：抽取插件源码里**真正调用**的 `workspaces.xxx(` / `uiWorkspace.xxx(`，
+// 先剔除注释（`http://` 里的 `//` 用「前一字符不是冒号」保护），
+// 于是删掉一处调用，对账表自动跟着缩，不会留下过期期望。
+function pluginServiceCalls() {
+  const source = fs.readFileSync(path.join(ROOT, 'lib', 'client.js'), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|[^:])\/\/[^\n]*/g, '$1')
+  const pick = (owner) => {
+    const names = new Set()
+    const re = new RegExp(`\\b${owner}\\.([A-Za-z_$][\\w$]*)\\s*\\(`, 'g')
+    for (const match of source.matchAll(re)) names.add(match[1])
+    return [...names].sort()
+  }
+  return { workspaces: pick('workspaces'), uiWorkspace: pick('uiWorkspace') }
+}
+
+// chip 文案关键字：直接读 lib/client.js 的 CHIP_HINTS / SWITCHER_HINTS 字面量。
+// 官方改译文时这里会先红，而不是等到界面上三枚 chip 突然不被装饰。
+function pluginChipHints() {
+  const source = fs.readFileSync(path.join(ROOT, 'lib', 'client.js'), 'utf8')
+  const block = source.match(/const CHIP_HINTS = \{([\s\S]*?)\}/)
+  if (!block) fail('lib/client.js no longer declares CHIP_HINTS')
+  const groups = {}
+  for (const line of block[1].split('\n')) {
+    const hit = line.match(/(\w+):\s*\[([^\]]*)\]/)
+    if (!hit) continue
+    groups[hit[1]] = hit[2].split(',')
+      .map((piece) => piece.trim())
+      .filter((piece) => piece !== '')
+      .map((piece) => {
+        const double = piece.match(/^"([\s\S]*)"$/)
+        const single = piece.match(/^'([\s\S]*)'$/)
+        return double ? double[1] : (single ? single[1] : piece)
+      })
+  }
+  const switcher = source.match(/const SWITCHER_HINTS = \[([^\]]*)\]/)
+  const switcherHints = switcher
+    ? switcher[1].split(',').map((piece) => piece.trim().replace(/^["']|["']$/g, '')).filter((piece) => piece !== '')
+    : []
+  return { groups, switcherHints }
+}
+
 // ---- 4. 对账表 -------------------------------------------------------------
 const P = 'node_modules/@deepseek-ai/'
 const results = []
@@ -131,13 +173,13 @@ function main() {
   const prim = asar.read(primPath) ?? ''
   const uiWsPath = `${P}dsh-client-ui-workspace/lib/client.js`
   const uiWs = asar.read(uiWsPath) ?? ''
-  // 客户端拿到的 workspaces / sessions 是 api-controller 实现的门面：`workspaces.rename`
-  // 这类方法不在 dsh-workspace 的宿主类里，而在 controller 的 client 半 —— 对账要对插件
-  // 真正调用的那一层，不是宿主那一层（这一条写错，脚本会把对的实现报成缺失）。
+  // 客户端拿到的 workspaces / uiWorkspace 是 api-controller 与 ui-workspace 实现的门面：
+  // `workspaces.create` 这类方法不在 dsh-workspace 的宿主类里 —— 对账要对插件真正调用的
+  // 那一层，不是宿主那一层（这一条写错，脚本会把对的实现报成缺失）。
   const wsApiPath = `${P}dsh-api-workspace-controller/lib/client.js`
   const wsApi = asar.read(wsApiPath) ?? ''
-  const sessionApiPath = `${P}dsh-api-session-controller/lib/client.js`
-  const sessionApi = asar.read(sessionApiPath) ?? ''
+  const cmPath = `${P}dsh-client-ui-context-menu/lib/client.js`
+  const cm = asar.read(cmPath) ?? ''
   const pmPath = `${P}dsh-client-ui-plugin-manager/lib/client.js`
   const pm = asar.read(pmPath) ?? ''
   const localePath = `${P}dsh-client-locale/lib/client.js`
@@ -174,25 +216,32 @@ function main() {
   record(/_crumbs\{/.test(conv), '样式类 …_crumbs（原生面包屑 nav）', convPath)
   record(conv.includes('"conversation.session.header.lineage"'), '槽位 conversation.session.header.lineage', convPath)
 
-  // ④ 服务方法：工作区 / 会话 / 目录选择。
-  const wsMethods = ['rename', 'delete', 'create', 'archiveSession']
-  const missingWs = wsMethods.filter((name) => !new RegExp(`\\b${name}\\(`).test(wsApi))
+  // ④ 服务方法：期望值来自插件源码里真正调用的那几条（注释已剔除），
+  //    行内「更多」菜单已交给宿主，所以这里核对的是 contextMenus 与原生会话菜单注册。
+  const calls = pluginServiceCalls()
+  const wsMissing = calls.workspaces.filter((name) => !new RegExp(`\\b${name}\\(`).test(wsApi))
   record(
-    wsApi !== '' && missingWs.length === 0,
-    'workspaces 方法',
-    missingWs.length === 0 ? `${wsMethods.join(' · ')}（${wsApiPath}）` : `缺失：${missingWs.join('、')}`,
+    wsApi !== '' && calls.workspaces.length > 0 && wsMissing.length === 0,
+    'workspaces 方法（代码实际调用）',
+    wsMissing.length === 0
+      ? `${calls.workspaces.join(' · ')}（${wsApiPath}）`
+      : `缺失：${wsMissing.join('、')}`,
+  )
+  const uiMissing = calls.uiWorkspace.filter((name) => !uiWs.includes(name + '('))
+  record(
+    uiWs !== '' && calls.uiWorkspace.length > 0 && uiMissing.length === 0,
+    'uiWorkspace 方法（代码实际调用）',
+    uiMissing.length === 0 ? calls.uiWorkspace.join(' · ') : `缺失：${uiMissing.join('、')}`,
   )
   record(
-    sessionApi.includes('using(') && sessionApi.includes('rename('),
-    'sessions 门面（using / rename）',
-    sessionApiPath,
+    cm.includes('provide("contextMenus"') && cm.includes('open: (target, point)'),
+    '服务 contextMenus（open(target, point)）',
+    `${cmPath}（active / open / close 由该包 provide）`,
   )
-  const uiMethods = ['pickDirectory', 'connectWorkspace', 'openSession', 'forkSession', 'openWorkspace']
-  const missingUi = uiMethods.filter((name) => !uiWs.includes(name))
   record(
-    uiWs !== '' && missingUi.length === 0,
-    'uiWorkspace 方法',
-    missingUi.length === 0 ? uiMethods.join(' · ') : `缺失：${missingUi.join('、')}`,
+    uiWs.includes('registerSessionMenus') && uiWs.includes('target: "session"'),
+    '原生会话菜单注册（置顶/重命名/分支/复制/归档）',
+    uiWsPath,
   )
   record(uiWs.includes('workspace.add'), '命令 workspace.add', uiWsPath)
   record(
@@ -201,7 +250,43 @@ function main() {
     `${localePath}（translate=${locale.includes('translate')} register=${locale.includes('register')}）`,
   )
 
-  // ⑤ 「添加工作区」交给宿主的两条前提：
+  // ⑤ chip 文案关键字：8 种语言的词干必须在对应的官方包里还找得到。
+  //    真实字符串是从官方字典里抽的，这里只做「包含」核对（大小写不敏感）。
+  const hints = pluginChipHints()
+  const subagentPath = `${P}dsh-client-ui-subagent/lib/client.js`
+  const jobsPath = `${P}dsh-client-ui-jobs/lib/client.js`
+  const teamPath = `${P}dsh-experimental-client-ui-agent-team/lib/client.js`
+  const chipSources = {
+    sub: (asar.read(subagentPath) ?? '').toLowerCase(),
+    jobs: (asar.read(jobsPath) ?? '').toLowerCase(),
+    team: (asar.read(teamPath) ?? '').toLowerCase(),
+  }
+  const missingHints = []
+  const skippedChips = []
+  for (const key of Object.keys(hints.groups)) {
+    const source = chipSources[key]
+    if (source === undefined) { missingHints.push(`${key}: 未知 chip`); continue }
+    // 该 chip 的原生包没装（例如没启 agent-team）：跳过，不把「不存在的 UI」算成失败
+    if (source === '') { skippedChips.push(key); continue }
+    for (const hint of hints.groups[key]) {
+      if (!source.includes(hint.toLowerCase())) missingHints.push(`${key}: ${hint}`)
+    }
+  }
+  const switcherSource = chipSources.sub
+  for (const hint of hints.switcherHints) {
+    if (!switcherSource.includes(hint.toLowerCase())) missingHints.push(`switcher: ${hint}`)
+  }
+  const hintCount = Object.values(hints.groups).reduce((sum, list) => sum + list.length, 0)
+  const skippedNote = skippedChips.length === 0 ? '' : `；未安装跳过：${skippedChips.join('、')}`
+  record(
+    missingHints.length === 0,
+    'chip 文案关键字（8 语言）',
+    missingHints.length === 0
+      ? `${hintCount} 个 chip 词干 + ${hints.switcherHints.length} 个切换器词干，均在官方包里命中${skippedNote}`
+      : `未命中：${missingHints.join('、')}${skippedNote}`,
+  )
+
+  // ⑥ 「添加工作区」交给宿主的两条前提：
   //    目录流占用者（dsh-host-directory-picker-auto）+ 桌面壳的目录选择 preload 桥。
   record(picker !== '', '宿主目录选择 occupant', `${P}dsh-host-directory-picker-auto/lib/index.js`)
   record(preload.includes('__DSH_DIRECTORY_PICKER__'), 'preload 桥 __DSH_DIRECTORY_PICKER__', 'lib/preload-app.cjs')
