@@ -29,4 +29,4 @@
 | 版本 | 内核 | 自动化 | 实机 | 记录 |
 | --- | --- | --- | --- | --- |
 | 1.5.4 | 2.0.21-next / 0.2.1-rc.4 | `check:instance` 16/16 | 干净 profile 实装 + rc.3 点检（所有者执行） | `MAINTAINING.md` §6 |
-| 2.0.0（2026-11-05） | 2.0.22-next / 0.2.2-rc.1 | `npm test` 通过；`check:instance` 18/18 | 发布后四侧取证见 `MAINTAINING.md` §6 | 本页 + `CHANGELOG.md` |
+| 2.0.0（2026-11-05） | 2.0.22-next / 0.2.2-rc.1 | `npm test` 通过；`check:instance` 18/18 | 四侧取证完成（本地 / GitHub / npm / 市场），见 `MAINTAINING.md` §6 | 本页 + `CHANGELOG.md` |
