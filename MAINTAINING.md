@@ -76,6 +76,11 @@
   - **GitHub**：发布提交 `7d21d75` 已推送；tag object `63e3cc0` → commit `7d21d75`；Release <https://github.com/xinspark/dsh-better-session-topbar/releases/tag/v2.0.0>（非 draft / 非 prerelease，`publishedAt` 2026-11-05T12:15:29Z）；Actions run `42025607757` success，日志含 `+ dsh-better-session-topbar@2.0.0`，provenance 写入 sigstore（`logIndex=3693436082`）。
   - **npm**：`dist-tags.latest = 2.0.0`；`dist.shasum = 2e9b71b1675d8251a79d00fa293ce7d2b538b37b`，`dist.integrity = sha512-p5wwLpJmKoz0w5lhCoxlIGai3YHb6EoC6NRXfTPZx1oumx3vPUFi69lyIQd6SOciaLMqzPm7sg+/DGiyqdCvJw==`，`dist.attestations = true`。下载 tarball 核对：**17/17 文件**与 tag blob 逐字节一致（`lib/client.js` sha256 `39133fabc0298f741e896b6b851ab40f281f35a90e7067bc62208f4ead8bc5e8`）。
   - **插件市场**：目录条目 `data/plugins/xinspark__dsh-better-session-topbar.yml` 的 `url` / `name` / `category` 未变，目录**没有 version 字段**；描述仍与 2.0.0 功能一致，**本轮不改**，无需 PR。
+- [x] **v2.0.1 发布（四侧取证，2026-11-06）**：
+  - **本地**：`package.json` = 2.0.1；`npm test` 通过（渲染冒烟 + 23 个文档链接）；`check:instance` 18/18；`npm pack` 2.0.1（17 files）；annotated tag `v2.0.1` → 发布提交 `537d706`；profile 链接解析到 2.0.1。
+  - **GitHub**：`main` = `537d706`；tag object `306b172` → commit `537d706`；Release <https://github.com/xinspark/dsh-better-session-topbar/releases/tag/v2.0.1>（非 draft / 非 prerelease，`publishedAt` 2026-11-05T16:11:26Z）；Actions run `42061976596` success，日志含 `+ dsh-better-session-topbar@2.0.1`，provenance 写入 sigstore（`logIndex=3695938951`）。
+  - **npm**：`dist-tags.latest = 2.0.1`；`dist.shasum = 333b29599936d7769a25b40939ae6dac82dfe4e0`，`dist.integrity = sha512-ziwdCctsXSwrRDfX4ccbC9RK1zFg8f6jZ3IobqWnoxmapCPXsChzp2qmRqW0Uhxub0k8SBJ0bsrTgv6SgHHThQ==`，`dist.attestations = true`。下载 tarball 核对：**17/17 文件**与 tag blob 逐字节一致。
+  - **插件市场**：条目 `url` / `name` / `category` 未变，目录无 version 字段，描述仍准确，**本轮不改**，无需 PR。
   - 备注：**发版后一律以 `registry.npmjs.org` 直查为准**，不要用镜像的 404 判「没发出去」（本机 npm 镜像配置见私有环境记录）。
 
 ## 7. 计划与决策的归属
