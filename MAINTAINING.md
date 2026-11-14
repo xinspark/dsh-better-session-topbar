@@ -106,6 +106,13 @@
   - **门与文档**：`check:instance` 新增「chip 结构锚点」（期望值从 `CHIP_ANCHORS` 抽取）、「原生会话菜单注册」并成「原生行内菜单注册（会话 · 工作区）」，现 **19/19**；`docs/design.md` §2、`docs/reference/compatibility.md`（新增官方顶栏版本差异表）、README 中英、新增经验 07 / 08 同步。
   - **实机 DOM 复核（2026-11-15，出于所有者的浏览器 session，带 token 的 Web GUI）**：顶栏实测 —— 面包屑三级/两级都正常收缩为图标态（886px 窗口下 `.bst-crumb-btn.bst-crumb-iconic`），子智能体 chip 同时带 `data-bst-chip="sub"`、`data-bst-chip-mode="count"`、`aria-label="3 个子智能体"` 与 `aria-haspopup="dialog"`；同排 `分享` / `更多操作` / 视图页签 / `更多会话视图` 全部 `popup=menu` 或空，**header 里 `aria-haspopup="dialog"` 只有那一个命中** → 锚点唯一性成立；顶栏里没有 team chip（与 rc.3 移出顶栏一致），也没有 jobs chip（该会话没有后台任务）。截图存 `docs-private/topbar-live-2026-11-15.png`。
 
+- [x] **chip 图标改回官方、删掉子节点挪位（2026-11-15，本地改动，未发版）**：所有者截图指出 chip 前面「图标认不出」→ 证实是**两套图标**叠在一起。
+  - **根因**：早期官方两枚 trigger 只有文字，插件用 `::before + mask` 补了自绘图标；0.2.2-rc.3 起官方在 `span.activitySlot`（14×14）里自带 `IconUsersOutlineRegular` / `IconLayersOutlineRegular` 与 `StateDot`，而我们的「把运行圆点挪到统计数之后」按「无文字子节点」标记，实际挪走的是整块 `activitySlot` → 头部自绘图标 + 尾部官方图标。
+  - **改动**：删 `JOBS_SVG` / `chipGlyph()` 两次注入（`SUBAGENT_SVG` 保留给面包屑子智能体级）；删 `data-bst-chip-dot` 标记、`order:1/2` CSS 与卸载清理里的 `bstChipDot`。chip 子节点回到官方顺序 `activitySlot · 文字 · (N) · 箭头`。
+  - **实测**（带 token 的 Web GUI，刷新后 dump DOM）：`sub` 的 `::before` content 变 `none`、`activitySlot` 无 data 标记、三个子节点 `order` 全 0。
+  - **一个取样陷阱**：agent 浏览器标签页处于 `document.hidden = true` 时，插件按设计不测量（rAF 挂起），于是刷新后只有首趟装饰过的那枚有标记 —— 这不是识别失败，看实机效果请在可见窗口里刷新。
+  - 文档：`docs/design.md` §2、README 中英的 chip 行、新增经验 09。
+
 > **发版通用纪律**：四侧一律以官方源直查为准（npm 用 `registry.npmjs.org`，不要用镜像的 404 判「没发出去」；GitHub 用 API 读 ref/tag/Release/run，别靠页面缓存）。本机镜像与代理配置见私有环境记录。
 
 ## 7. 计划与决策的归属

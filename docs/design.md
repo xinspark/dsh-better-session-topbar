@@ -44,6 +44,15 @@
 
 统计数从 aria-label 取数字（各语言位置不同，不能只认开头）；切换器形态先排除，避免把标题里的
 数字当计数。团队那枚没有统计数与圆环，由插件补，圆环与官方 spinner 同相。
+
+**图标一律用官方的，插件不再自绘**（2026-11-15 修正）：0.2.2-rc.3 起两枚 trigger 的
+`span.activitySlot` 里已经有 14px 图标（子智能体 `IconUsersOutlineRegular`、后台任务
+`IconLayersOutlineRegular`），运行中的 `StateDot` 也在同一格里。历史上官方没有图标，插件用
+`::before + mask` 补过两枚自绘图标（`SUBAGENT_SVG` / `JOBS_SVG`），还把「无文字子节点」当圆点
+用 flex `order` 挪到文字之后 —— 那条实际挪走的是整块 `activitySlot`，于是 chip 头部一枚自绘
+图标、尾部又一枚官方图标，两套图标打架（用户 2026-11-15 截图指出）。现在这两样都已删除，
+chip 的子节点顺序回到官方顺序：`activitySlot · 文字 · (N) · 箭头`。
+
 **0.2.2-rc.3 起**官方把「智能体团队」这枚 chip 搬出顶栏（挂到
 `conversation.session.header.actions.subagent.footer`，渲染任务板），顶栏里只剩子智能体与
 后台任务两枚；插件的团队装饰因此只对老内核生效，`check:instance` 会把「已移出顶栏」作为
