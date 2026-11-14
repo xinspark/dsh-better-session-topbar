@@ -107,17 +107,39 @@ function collectLists(node, out = []) {
   return out
 }
 
-function renderCrumb(registered, list) {
+function renderCrumb(registered, list, extraProps) {
   const crumb = registered.find((r) => r.options && r.options.name === 'conversation.session.header.actions')
   if (!crumb) throw new Error('breadcrumb slot not registered')
   const props = {
     sessionId: 's1',
     useWorkspaces: (sel) => sel(list),
     useSessions: (sel) => sel({ byId: list.byId, projectionsBySession: {} }),
+    ...(extraProps || {}),
   }
   const tree = crumb.Comp(props)
   if (!tree || typeof tree !== 'object') throw new Error('breadcrumb returned nothing')
   return tree
+}
+
+// 0.2.2-rc.3 的根 prop：useContextMenu() → { getTriggerProps(target, handlers) }。
+// 这里按官方实现返回一组可识别的 props，用来断言插件确实走了原生绑定。
+function nativeTriggers() {
+  const calls = []
+  return {
+    calls,
+    useContextMenu: () => ({
+      getTriggerProps: (target, handlers = {}) => {
+        calls.push({ target, handlers })
+        return {
+          ...handlers,
+          'data-native-trigger': target && target.kind ? target.kind : 'unknown',
+          tabIndex: handlers.tabIndex === undefined ? 0 : handlers.tabIndex,
+          onContextMenu: () => {},
+          onKeyDown: () => {},
+        }
+      },
+    }),
+  }
 }
 
 function itemsOf(lists, firstId) {
@@ -257,6 +279,49 @@ const sameKeys = (a, b) => a.size === b.size && [...a].every((key) => b.has(key)
   }
   for (const it of [...ws.props.items, ...ss.props.items]) {
     if (it && it.actions !== undefined) throw new Error('self-built menu actions still present')
+  }
+}
+
+// ---- 场景三：rc.3 的根 prop useContextMenu → 「⋯」与行都挂原生触发绑定 --------
+{
+  const { registered, list } = boot({ withMenus: true, withData: true })
+  const native = nativeTriggers()
+  const tree = renderCrumb(registered, list, { useContextMenu: native.useContextMenu })
+  const lists = collectLists(tree)
+  const ws = itemsOf(lists, 'add')
+  const ss = itemsOf(lists, 'new')
+  // ① 接线：组件把根 prop 的 getTriggerProps 传给了两个下拉
+  if (typeof ws.props.triggerProps !== 'function' || typeof ss.props.triggerProps !== 'function') {
+    throw new Error('native getTriggerProps not forwarded to the dropdowns')
+  }
+  // ② 行为：真的渲染一次列表，断言「⋯」与行都用了原生绑定。
+  //    BstList 用 useState 存定位结果，桩里把 null 换成坐标让它进入渲染分支。
+  const originalUseState = ReactStub.useState
+  ReactStub.useState = (init) => [init === null ? { left: 0, top: 0 } : init, () => {}]
+  let listNode = null
+  const originalDocument = globalThis.document
+  globalThis.document = { body: { nodeType: 1 } }
+  try {
+    listNode = ws.type({ ...ws.props, open: true })
+  } finally {
+    ReactStub.useState = originalUseState
+    globalThis.document = originalDocument
+  }
+  if (!listNode) throw new Error('dropdown did not render for the native-trigger check')
+  if (native.calls.length === 0) throw new Error('native getTriggerProps never used')
+  const targets = native.calls.map((call) => call.target && call.target.kind)
+  if (!targets.includes('workspace')) throw new Error('native trigger not bound to the workspace target')
+  const rowCall = native.calls.find((call) => call.handlers && call.handlers.tabIndex === -1)
+  if (!rowCall) throw new Error('row lost its tabIndex -1 on the native trigger')
+  const buttons = collectType(listNode, 'button').filter((node) => node.props.className === 'bst-item-more')
+  if (buttons.length === 0) throw new Error('more button missing under the native path')
+  for (const button of buttons) {
+    if (button.props['data-native-trigger'] === undefined) {
+      throw new Error('more button did not take the native trigger props')
+    }
+    if (typeof button.props.onClick !== 'function') throw new Error('native trigger dropped our onClick')
+    if (typeof button.props.onKeyDown !== 'function') throw new Error('native trigger lost onKeyDown (Shift+F10)')
+    if (button.props['aria-haspopup'] !== 'menu') throw new Error('more button lost aria-haspopup')
   }
 }
 

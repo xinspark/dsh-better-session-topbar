@@ -46,6 +46,16 @@ rc.3 与 rc.4：team -20 / preset -10 / cost-meter 1 / subagent-catalog 10 / job
 | 可选（`ctx.inject` 子级） | `shortcuts` | 少一处「添加工作区」探活 |
 | 可选（`ctx.inject` 子级） | `contextMenus` | 少行尾「⋯」（0.2.1 及更早） |
 
+### 行内「⋯」的触发绑定：原生 `getTriggerProps` 优先
+
+0.2.2-rc.3 起宿主在根 props 里提供 `useContextMenu()`，返回 `{ getTriggerProps(target, handlers) }`：
+它统一处理右键、`Shift+F10`、`ContextMenu` 键、打开前聚焦、键盘场景的坐标兜底与 `stopPropagation`。
+插件把 `props.useContextMenu` 作为 `triggerProps` 传进下拉：行用 `triggerProps(target, { tabIndex: -1 })`
+（行是容器，不该成为 Tab 停靠点），「⋯」用 `triggerProps(target, { onClick })`（原生会保留我们的 onClick）。
+旧内核没有这个 prop → `triggerProps = null`，退回插件自绘的 `onContextMenu` 手势，行为不变。
+冒烟测试覆盖两条路径：有该 prop 时按钮必须拿到 `onKeyDown`/`onContextMenu` 且保留 `onClick`，
+没有时不得出现原生绑定。
+
 **不要**把可选服务写进硬 `inject`：第三方发行版没装该服务时，整个插件（连面包屑）都不会 apply。
 
 ## 5. 顶栏 DOM 锚点

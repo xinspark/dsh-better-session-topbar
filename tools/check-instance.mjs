@@ -233,13 +233,15 @@ function main() {
     'uiWorkspace 方法（代码实际调用）',
     uiMissing.length === 0 ? calls.uiWorkspace.join(' · ') : `缺失：${uiMissing.join('、')}`,
   )
+  // 判据绑「符号」不绑引号风格：0.2.2-rc.1 用 `provide("contextMenus")`，
+  // rc.3 改成模板反引号 `provide(\`contextMenus\`)` —— 只认一种引号会让门假阳（经验：自己的对账脚本也会假阳）。
   record(
-    cm.includes('provide("contextMenus"') && cm.includes('open: (target, point)'),
+    /provide\(\s*[`"']contextMenus[`"']\s*,/.test(cm) && /open\s*:\s*\(?\s*target\s*,\s*point/.test(cm),
     '服务 contextMenus（open(target, point)）',
     `${cmPath}（active / open / close 由该包 provide）`,
   )
   record(
-    uiWs.includes('registerSessionMenus') && uiWs.includes('target: "session"'),
+    /registerSessionMenus/.test(uiWs) && /target\s*:\s*[`"']session[`"']/.test(uiWs),
     '原生会话菜单注册（置顶/重命名/分支/复制/归档）',
     uiWsPath,
   )

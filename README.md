@@ -38,7 +38,7 @@
 dsh plugin --profile web add dsh-better-session-topbar
 
 # 从 GitHub 安装（等价；可锁 tag 或 commit）
-dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.1
+dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.2
 ```
 
 - **建议锁定 commit**：GitHub 安装拉取的是仓库源码，tag 之后的新推送不会自动影响已安装版本；如需把运行内容严格固定到某个提交，用 `github:xinspark/dsh-better-session-topbar#<commit-sha>`（官方文档推荐做法）。
@@ -46,7 +46,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.1
 
   ```sh
   dsh plugin --profile web add ./dsh-better-session-topbar
-  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.1.tgz
+  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.2.tgz
   ```
 
 然后启动 Web UI：`dsh web`（或 `dsh --profile web`）。首次 `add` 会自动用 `@deepseek-ai/dsh-base` 初始化 profile。

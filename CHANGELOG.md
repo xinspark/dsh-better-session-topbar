@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2026-11-14
+
+### Changed
+
+- **对齐 DSH 0.2.2-rc.3（桌面壳 2.0.23-next）**：「⋯」与下拉行的右键 / `Shift+F10` / `ContextMenu` 键改走宿主根 prop `useContextMenu().getTriggerProps(target, handlers)` —— 原生负责聚焦、键盘场景坐标兜底与 `stopPropagation`，并保留插件自己的 `onClick`；行以 `tabIndex: -1` 绑定（容器不该成为 Tab 停靠点）。旧内核没有该 prop 时退回原自绘手势，行为不变。冒烟测试新增一条场景覆盖两条路径。
+- `plugins.row.config` 的注册去掉槽 schema 不认的 `locale` 字段（该槽只声明 `key`；组件自己取词）。
+- `tools/check-instance.mjs` 的两条判据改为**符号级正则**：rc.3 把 `provide("contextMenus")` 改成模板反引号、把 `target: "session"` 收紧，旧字符串精确匹配会把「契约没变」误报成 FAIL。
+
+### Fixed
+
+- 升级后 `check:instance` 不再因引号风格变化假报 2 项 FAIL；同一实例现为 **18/18 PASS**。
+
 ## [2.0.1] - 2026-11-06
 
 ### Changed
