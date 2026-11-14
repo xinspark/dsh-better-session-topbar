@@ -38,7 +38,7 @@
 dsh plugin --profile web add dsh-better-session-topbar
 
 # 从 GitHub 安装（等价；可锁 tag 或 commit）
-dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.2
+dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.3
 ```
 
 - **建议锁定 commit**：GitHub 安装拉取的是仓库源码，tag 之后的新推送不会自动影响已安装版本；如需把运行内容严格固定到某个提交，用 `github:xinspark/dsh-better-session-topbar#<commit-sha>`（官方文档推荐做法）。
@@ -46,7 +46,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.2
 
   ```sh
   dsh plugin --profile web add ./dsh-better-session-topbar
-  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.2.tgz
+  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.3.tgz
   ```
 
 然后启动 Web UI：`dsh web`（或 `dsh --profile web`）。首次 `add` 会自动用 `@deepseek-ai/dsh-base` 初始化 profile。
@@ -174,6 +174,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.2
 | 目录选择交互 | 插件**不接管、不自绘**：`workspace.add` → 宿主 occupant（native = 官方 renderless → 系统选择器；browse = 官方应用内面板）；槽空时才兜底 preload 桥 `__DSH_DIRECTORY_PICKER__` / `pickDirectory()` | 四种组合各点一次「添加工作区」：native 宿主应直接见系统对话框，browse 宿主应见官方应用内面板 |
 | 顶栏 DOM 锚点 | `header[data-window-drag]` + `nav:has(~ div .bst-crumbs)`（0.2.0 的 `data-conversation-*` 已移除） | 原生标题被隐藏、窄屏切换正常 |
 | primitives 组件 | `Modal` / `Button` / `Switch` / `*Regular` 图标（`Menu` / `Input` 已随自建菜单移除） | 错误对话框与插件设置页各点开一次 |
+| 顶栏漂移 | `npm run check:topbar`（`tools/baseline/topbar.json`） | 升级后**先跑它**看「变了什么」（槽位 / 注册者 / chip 锚点与图标 / DOM 锚点），零差异再按本表逐项复核 |
 | 原生 chip 识别 | 结构锚点 `CHIP_ANCHORS`（子智能体 = `aria-haspopup="dialog"`）+ 文案词表 `CHIP_HINTS` / `SWITCHER_HINTS`（8 语言）；team 的容器锚点 `[data-team-action]` 只对老内核有效 | `npm run check:instance` 的「chip 结构锚点」「chip 文案关键字」两项应 PASS；实机看三枚 chip 是否仍有图标 / 计数 / 圆环 |
 | 文案键 | 插件自有文案（添加工作区 / 新会话）；行内菜单文案属于宿主命名空间 | 中英各看一次 |
 

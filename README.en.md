@@ -38,7 +38,7 @@ Works on **Windows · macOS · Linux** (DSH Web GUI) — plain JavaScript, no na
 dsh plugin --profile web add dsh-better-session-topbar
 
 # from GitHub (equivalent; pins a tag or commit)
-dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.2
+dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.3
 ```
 
 - **Consider locking a commit**: a GitHub install pulls the repository source, so later pushes don't silently change what you run. To pin the exact content, use `github:xinspark/dsh-better-session-topbar#<commit-sha>` (as recommended by the official docs).
@@ -46,7 +46,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.2
 
   ```sh
   dsh plugin --profile web add ./dsh-better-session-topbar
-  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.2.tgz
+  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.3.tgz
   ```
 
 Then start the Web UI: `dsh web` (or `dsh --profile web`). The first `add` auto-initializes the profile with `@deepseek-ai/dsh-base`.
@@ -174,6 +174,7 @@ This plugin sits on DSH's internal contracts (there is no stable third-party API
 | Directory interaction | the plugin **takes nothing over and draws no panel**: `workspace.add` → the host occupant (native = official renderless → OS chooser; browse = official in-app panel); only an empty hole falls back to the preload bridge `__DSH_DIRECTORY_PICKER__` / `pickDirectory()` | Click "Add workspace" once in each of desktop window / web / community desktop / community web: a native host must show the OS dialog, a browse host the official in-app panel |
 | Topbar DOM anchors | `header[data-window-drag]` + `nav:has(~ div .bst-crumbs)` (0.2.0's `data-conversation-*` are gone) | Native title hidden, narrow-screen switch works |
 | primitives | `Modal` / `Button` / `Switch` / `*Regular` icons (`Menu` / `Input` left with the self-built menu) | Open the error dialog and the plugin settings page |
+| Topbar drift | `npm run check:topbar` (`tools/baseline/topbar.json`) | Run it **first** after an upgrade to see what changed (slots / registrants / chip anchors and icons / DOM anchors); only then walk this table |
 | Native chip recognition | structural anchors `CHIP_ANCHORS` (subagent = `aria-haspopup="dialog"`) + label tables `CHIP_HINTS` / `SWITCHER_HINTS` (8 languages); the team container anchor `[data-team-action]` only applies to older kernels | `npm run check:instance` must PASS both "chip structural anchor" and "chip label keywords"; then eyeball that each chip still shows its icon / counter / ring |
 | Copy keys | plugin-owned wording only (add workspace / new session); the inline menu's copy belongs to the host namespace | Check zh and en |
 
