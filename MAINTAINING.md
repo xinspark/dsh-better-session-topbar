@@ -76,17 +76,24 @@
   - **GitHub**：发布提交 `7d21d75` 已推送；tag object `63e3cc0` → commit `7d21d75`；Release <https://github.com/xinspark/dsh-better-session-topbar/releases/tag/v2.0.0>（非 draft / 非 prerelease，`publishedAt` 2026-11-05T12:15:29Z）；Actions run `42025607757` success，日志含 `+ dsh-better-session-topbar@2.0.0`，provenance 写入 sigstore（`logIndex=3693436082`）。
   - **npm**：`dist-tags.latest = 2.0.0`；`dist.shasum = 2e9b71b1675d8251a79d00fa293ce7d2b538b37b`，`dist.integrity = sha512-p5wwLpJmKoz0w5lhCoxlIGai3YHb6EoC6NRXfTPZx1oumx3vPUFi69lyIQd6SOciaLMqzPm7sg+/DGiyqdCvJw==`，`dist.attestations = true`。下载 tarball 核对：**17/17 文件**与 tag blob 逐字节一致（`lib/client.js` sha256 `39133fabc0298f741e896b6b851ab40f281f35a90e7067bc62208f4ead8bc5e8`）。
   - **插件市场**：目录条目 `data/plugins/xinspark__dsh-better-session-topbar.yml` 的 `url` / `name` / `category` 未变，目录**没有 version 字段**；描述仍与 2.0.0 功能一致，**本轮不改**，无需 PR。
+- [x] **v2.0.2 发布（四侧取证，2026-11-14）**：
+  - **本地**：`package.json` = 2.0.2；`npm test` 通过（渲染冒烟含原生触发绑定场景 + 23 个文档链接）；`check:instance` 18/18；`npm pack` 2.0.2（17 files，111.5 kB → 112.5 kB tarball）；annotated tag `v2.0.2` → 发布提交 `5bae4e9`；profile 链接解析到 2.0.2。
+  - **GitHub**：`main` = `5bae4e9`；tag object `989ea65` → commit `5bae4e9`；Release <https://github.com/xinspark/dsh-better-session-topbar/releases/tag/v2.0.2>（非 draft / 非 prerelease，`publishedAt` 2026-11-14T09:33:30Z）；Actions run `43581119610` success，日志含 `+ dsh-better-session-topbar@2.0.2`，provenance `logIndex=3874906703`。
+  - **npm**：`dist-tags.latest = 2.0.2`；`dist.shasum = a868ce0c63c282f605b109565aa1ec38d8cf638d`，`dist.integrity = sha512-kDhk2yzmrgiLs+YK+Wwk4ZZ0ztgVZ9q1fZIJg9IHkdStO9C7sj+JQg5TovNJpCr/nfg0q4Hk1fAgGWSIjAVEEg==`，`dist.attestations = true`；下载 tarball 核对 **17/17 文件**与 tag blob 逐字节一致。
+  - **插件市场**：条目 `url` / `name` / `category` 未变，目录无 version 字段，描述仍准确；**本轮不改**，无需 PR。
 - [x] **实例更新对账：0.2.2-rc.1 → 0.2.2-rc.3（壳 2.0.22-next → 2.0.23-next，2026-11-14）**：结论 **零兼容性迁移**，另做一处原生对齐。
   - 认版本：运行实例的 `app.asar!/package.json` = 壳 `2.0.23-next`、`dependencies["@deepseek-ai/dsh"]` = `0.2.2-rc.3`；版本目录名仍是 `2.0.22-next`（原地升级，别拿目录名当版本）。两份 asar（壳自带与 `E:\FXS\APP\DSH NEXT\resources\app.asar`）sha256 相同（`003B66E8…`），host 进程实际加载后者。
   - `check:instance` 首轮 **16/18**：两项 FAIL 均为**校验脚本的字符串精确匹配过期**（rc.3 把 `provide("contextMenus")` 改成模板反引号、`target: "session"` 同）→ 判据改符号级正则后 **18/18 PASS**。**契约本身没变**：`contextMenus` 仍是 `active/register/resolve/close/open(target,point,options?)`，`registerSessionMenus` 仍注册 `session.*`（target `session`）。
   - 实时 Slots 佐证：`conversation.session.header.actions` 里 `bst-breadcrumb`(-40, active)；`plugins.detail.section` 里 `bst-star`(80, active)，市场来源行 `dsh-market-source`(90) 仍在后面。rc.3 该槽新增 `agent-terminals`(0) 与 `agent-preset`(-10) 等，插件不依赖它们的数字。
   - 服务面复核：`configForms` 仍在（`dsh-client-locale` 的 `inject=[slots,remote,configForms]` 且 `ctx.configForms.get(...)`）；`shortcuts.invoke(id, {modal})` 签名未变（`context.modal !== null` 判断兼容我们的 `{modal:null}`）；`workspaces.create({path})`、`uiWorkspace.pickDirectory()`、`locale.bind/register` 全部在。
   - 顺带对齐（rc.3 新能力）：「⋯」改用根 prop `useContextMenu().getTriggerProps(target, handlers)`；`plugins.row.config` 注册去掉槽不认的 `locale`。均为**带旧内核回退**的改动，`npm test` 增一条场景覆盖两条路径。
+- [x] **v2.0.1 发布（四侧取证，2026-11-06）**：
   - **本地**：`package.json` = 2.0.1；`npm test` 通过（渲染冒烟 + 23 个文档链接）；`check:instance` 18/18；`npm pack` 2.0.1（17 files）；annotated tag `v2.0.1` → 发布提交 `537d706`；profile 链接解析到 2.0.1。
   - **GitHub**：`main` = `537d706`；tag object `306b172` → commit `537d706`；Release <https://github.com/xinspark/dsh-better-session-topbar/releases/tag/v2.0.1>（非 draft / 非 prerelease，`publishedAt` 2026-11-05T16:11:26Z）；Actions run `42061976596` success，日志含 `+ dsh-better-session-topbar@2.0.1`，provenance 写入 sigstore（`logIndex=3695938951`）。
   - **npm**：`dist-tags.latest = 2.0.1`；`dist.shasum = 333b29599936d7769a25b40939ae6dac82dfe4e0`，`dist.integrity = sha512-ziwdCctsXSwrRDfX4ccbC9RK1zFg8f6jZ3IobqWnoxmapCPXsChzp2qmRqW0Uhxub0k8SBJ0bsrTgv6SgHHThQ==`，`dist.attestations = true`。下载 tarball 核对：**17/17 文件**与 tag blob 逐字节一致。
   - **插件市场**：条目 `url` / `name` / `category` 未变，目录无 version 字段，描述仍准确，**本轮不改**，无需 PR。
-  - 备注：**发版后一律以 `registry.npmjs.org` 直查为准**，不要用镜像的 404 判「没发出去」（本机 npm 镜像配置见私有环境记录）。
+
+> **发版通用纪律**：四侧一律以官方源直查为准（npm 用 `registry.npmjs.org`，不要用镜像的 404 判「没发出去」；GitHub 用 API 读 ref/tag/Release/run，别靠页面缓存）。本机镜像与代理配置见私有环境记录。
 
 ## 7. 计划与决策的归属
 
