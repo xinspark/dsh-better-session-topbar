@@ -54,9 +54,13 @@
 chip 的子节点顺序回到官方顺序：`activitySlot · 文字 · (N) · 箭头`。
 
 **面包屑的字形同样全部回到官方组件**：工作区 `IconFolderCloseRegular`、普通会话级
-`IconQueueOutlineRegular`、子智能体级 `IconWorkspaceTreeOutlineRegular`（原来是一段手抄 SVG，
-还把 stroke 手调成 1.5，同排三级里只有它偏粗）、标题态里被压成图标的父级
+`IconQueueOutlineRegular`、子智能体级 `IconUsersOutlineRegular`、标题态里被压成图标的父级
 `IconChevronsUpDownOutlineRegular`。手抄的 `.bst-glyph` 包装层与对应样式一并删除。
+
+子智能体级这一枚**选的是语义而不是旧代码里的图形名**：官方 `dsh-client-ui-subagent` 表达
+「子智能体」用的就是 `users-outline`（顶栏那枚 chip 同源），而旧手抄 SVG 抄的是
+`icon-workspace-tree-outline` —— 那属于 `dsh-client-ui-workspace` 的「工作区树」，在 16px 下
+画出来像一张小卡片，读者认不出是子智能体。
 
 **0.2.2-rc.3 起**官方把「智能体团队」这枚 chip 搬出顶栏（挂到
 `conversation.session.header.actions.subagent.footer`，渲染任务板），顶栏里只剩子智能体与
