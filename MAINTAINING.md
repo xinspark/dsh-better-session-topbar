@@ -93,6 +93,12 @@
   - **npm**：`dist-tags.latest = 2.0.1`；`dist.shasum = 333b29599936d7769a25b40939ae6dac82dfe4e0`，`dist.integrity = sha512-ziwdCctsXSwrRDfX4ccbC9RK1zFg8f6jZ3IobqWnoxmapCPXsChzp2qmRqW0Uhxub0k8SBJ0bsrTgv6SgHHThQ==`，`dist.attestations = true`。下载 tarball 核对：**17/17 文件**与 tag blob 逐字节一致。
   - **插件市场**：条目 `url` / `name` / `category` 未变，目录无 version 字段，描述仍准确，**本轮不改**，无需 PR。
 
+- [x] **工具与元数据校正（2026-11-15，本地改动，未发版）**：三处与实际情况脱钩的地方对齐，代码零行为变化。
+  - **`check:instance` 能开箱跑**：实例发现加 `DSH_INSTALL_DIR`（DSH 托管环境注入的当前实例 `app.asar`），优先级 `--asar` → `DSH_APP_ASAR` → `DSH_INSTALL_DIR` → 各平台候选路径，并接受 asar 文件或安装目录两种形态。根因：本机实例在多版本启动器目录 `E:\FXS\APP\DSH NEXT\resources\app.asar` 下，不在硬编码候选里，此前必须先手填 `--asar`。现在 `npm run check:instance` 直接 **18/18 PASS**（`dsh-desktop-next 2.0.23-next · harness 0.2.2-rc.3`）。
+  - **`dsh.verifiedAgainst` 从 `0.2.2-rc.1` 抬到 `0.2.2-rc.3`**：与 2.0.2 的对账基线（§6 上一条 / `docs/reference/compatibility.md`）一致；README 中英「验证基线」行同步为 2.0.23-next / 0.2.2-rc.3。
+  - **Issue 模板占位版本号**：插件 `1.5.4` → `2.0.2`，DSH `2.0.22-next / 0.2.2-rc.1` → `2.0.23-next / 0.2.2-rc.3`。
+  - 门：`npm test`（渲染冒烟 + 23 个文档链接）通过；`check:instance` 18/18。**`package.json` 版本号未动（仍 2.0.2），这批改动进 CHANGELOG `[Unreleased]`，随下个版本发布**；`tools/` 不在 npm `files` 白名单，脚本改动本身不改变发布包内容。
+
 > **发版通用纪律**：四侧一律以官方源直查为准（npm 用 `registry.npmjs.org`，不要用镜像的 404 判「没发出去」；GitHub 用 API 读 ref/tag/Release/run，别靠页面缓存）。本机镜像与代理配置见私有环境记录。
 
 ## 7. 计划与决策的归属

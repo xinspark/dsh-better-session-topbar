@@ -27,7 +27,7 @@
 
 支持 **Windows · macOS · Linux**（DSH Web GUI）——纯 JavaScript，无原生依赖，分发无需构建步骤。
 
-> 验证基线：**DSH NEXT 2.0.22-next（内置 DeepSeek Harness 0.2.2-rc.1）** 与 `dsh web`。行内「更多」菜单依赖 0.2.2-rc.1 起的 `contextMenus` 服务；更早的内核（0.2.1-rc.4 / 0.2.1-rc.3 / 0.2.1-rc.2 / 0.2.0-rc.2）上面包屑与两个下拉照常工作，只是行尾不显示「⋯」（侧栏仍是完整入口）。其它版本未经验证。
+> 验证基线：**DSH NEXT 2.0.23-next（内置 DeepSeek Harness 0.2.2-rc.3）** 与 `dsh web`。行内「更多」菜单依赖 0.2.2-rc.1 起的 `contextMenus` 服务；更早的内核（0.2.1-rc.4 / 0.2.1-rc.3 / 0.2.1-rc.2 / 0.2.0-rc.2）上面包屑与两个下拉照常工作，只是行尾不显示「⋯」（侧栏仍是完整入口）。其它版本未经验证。
 
 ## 安装
 

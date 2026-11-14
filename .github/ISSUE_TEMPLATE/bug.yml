@@ -11,7 +11,7 @@ body:
     attributes:
       label: 插件版本
       description: Plugins 页里本插件显示的行版本
-      placeholder: 1.5.4
+      placeholder: 2.0.2
     validations:
       required: true
   - type: input
@@ -19,7 +19,7 @@ body:
     attributes:
       label: DSH 版本
       description: DSH NEXT 壳版本 + Harness 内核版本
-      placeholder: 2.0.22-next / 内核 0.2.2-rc.1
+      placeholder: 2.0.23-next / 内核 0.2.2-rc.3
     validations:
       required: true
   - type: dropdown

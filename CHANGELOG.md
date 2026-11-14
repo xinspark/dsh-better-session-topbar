@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **`npm run check:instance` 在 DSH 会话里可以直接跑**：`tools/check-instance.mjs` 的实例发现新增 `DSH_INSTALL_DIR`（DSH 托管环境注入的「当前运行实例 app.asar」）优先于各平台硬编码候选路径，并同时接受 asar 文件与安装目录两种形态。此前本机实例装在多版本启动器的 `E:\FXS\APP\DSH NEXT\resources\app.asar`，不在候选列表里，只能手填 `--asar`；现在 `npm run check:instance` 开箱 **18/18 PASS**（`--asar` 与 `DSH_APP_ASAR` 仍最高优先，行为不变）。
+
+### Changed
+
+- **版本基线元数据对齐 0.2.2-rc.3**：`package.json` 的 `dsh.verifiedAgainst` 从 `0.2.2-rc.1` 抬到 `0.2.2-rc.3`（与 `docs/reference/compatibility.md`、`MAINTAINING.md` §6 记录的 2.0.2 对账基线一致），README 中英的「验证基线」一行同步为 DSH NEXT 2.0.23-next / Harness 0.2.2-rc.3。
+- Issue 模板的两个占位版本号跟上现状：插件版本 `1.5.4` → `2.0.2`，DSH 版本 `2.0.22-next / 内核 0.2.2-rc.1` → `2.0.23-next / 内核 0.2.2-rc.3`。
+
 ## [2.0.2] - 2026-11-14
 
 ### Changed

@@ -27,7 +27,7 @@ The inline "more" entry calls the host's own context-menu service: pin / rename 
 
 Works on **Windows · macOS · Linux** (DSH Web GUI) — plain JavaScript, no native dependencies, no build step for distribution.
 
-> Verification baseline: **DSH NEXT 2.0.22-next (bundling DeepSeek Harness 0.2.2-rc.1)** and `dsh web`. The inline "more" menu needs the `contextMenus` service from 0.2.2-rc.1; on earlier kernels (0.2.1-rc.4 / 0.2.1-rc.3 / 0.2.1-rc.2 / 0.2.0-rc.2) the breadcrumb and both dropdowns still work, but rows show no "⋯" (the sidebar remains the full entry). Other versions are untested.
+> Verification baseline: **DSH NEXT 2.0.23-next (bundling DeepSeek Harness 0.2.2-rc.3)** and `dsh web`. The inline "more" menu needs the `contextMenus` service from 0.2.2-rc.1; on earlier kernels (0.2.1-rc.4 / 0.2.1-rc.3 / 0.2.1-rc.2 / 0.2.0-rc.2) the breadcrumb and both dropdowns still work, but rows show no "⋯" (the sidebar remains the full entry). Other versions are untested.
 
 ## Install
 

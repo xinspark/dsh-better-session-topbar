@@ -8,7 +8,7 @@
 // 一项一条 PASS/FAIL，全过才退出 0。
 //
 // 用法：
-//   node tools/check-instance.mjs                 # 自动找 app.asar
+//   node tools/check-instance.mjs                 # 自动找 app.asar（优先用 DSH 托管的 DSH_INSTALL_DIR）
 //   node tools/check-instance.mjs --asar <path>   # 指定 app.asar
 //   DSH_APP_ASAR=<path> node tools/check-instance.mjs
 //
@@ -22,6 +22,24 @@ import { fileURLToPath } from 'node:url'
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 // ---- 1. 找到 app.asar ------------------------------------------------------
+// 优先级：`--asar` → `DSH_APP_ASAR` → `DSH_INSTALL_DIR` → 各平台常见安装路径。
+// `DSH_INSTALL_DIR` 是 DSH 自己塞进托管环境里的「当前运行实例的 app.asar」——在 DSH 会话
+// 里跑本脚本时它一定存在，既不用记本机安装路径，也不受多版本启动器搬迁影响
+//（本机实测 `E:\FXS\APP\DSH NEXT\resources\app.asar`，不在下面那组候选里，于是
+//  `npm run check:instance` 原来只能靠手填 `--asar`）。它的值可能是 asar 文件本身，
+// 也可能是安装目录（再拼 `resources/app.asar`）。
+function fromInstallDir(value) {
+  if (typeof value !== 'string' || value === '') return null
+  if (value.toLowerCase().endsWith('.asar')) return fs.existsSync(value) ? value : null
+  if (!fs.existsSync(value)) return null
+  if (fs.statSync(value).isFile()) return value
+  for (const leaf of ['resources/app.asar', 'app.asar']) {
+    const candidate = path.join(value, leaf)
+    if (fs.existsSync(candidate)) return candidate
+  }
+  return null
+}
+
 function resolveAsar() {
   const argv = process.argv.slice(2)
   const flag = argv.indexOf('--asar')
@@ -30,6 +48,8 @@ function resolveAsar() {
     if (!fs.existsSync(explicit)) fail(`app.asar not found: ${explicit}`)
     return path.resolve(explicit)
   }
+  const installed = fromInstallDir(process.env.DSH_INSTALL_DIR)
+  if (installed !== null) return installed
   const local = process.env.LOCALAPPDATA ?? ''
   const candidates = [
     path.join(local, 'Programs', 'DSH NEXT', 'resources', 'app.asar'),
@@ -39,7 +59,7 @@ function resolveAsar() {
     '/opt/DSH NEXT/resources/app.asar',
   ].filter((entry) => entry !== '')
   for (const candidate of candidates) if (fs.existsSync(candidate)) return candidate
-  fail('no app.asar found — pass --asar <path> or set DSH_APP_ASAR')
+  fail('no app.asar found — pass --asar <path>, or set DSH_APP_ASAR / run inside a DSH session (DSH_INSTALL_DIR)')
 }
 
 function fail(message) {
