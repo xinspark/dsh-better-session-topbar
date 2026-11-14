@@ -53,6 +53,11 @@
 图标、尾部又一枚官方图标，两套图标打架（用户 2026-11-15 截图指出）。现在这两样都已删除，
 chip 的子节点顺序回到官方顺序：`activitySlot · 文字 · (N) · 箭头`。
 
+**面包屑的字形同样全部回到官方组件**：工作区 `IconFolderCloseRegular`、普通会话级
+`IconQueueOutlineRegular`、子智能体级 `IconWorkspaceTreeOutlineRegular`（原来是一段手抄 SVG，
+还把 stroke 手调成 1.5，同排三级里只有它偏粗）、标题态里被压成图标的父级
+`IconChevronsUpDownOutlineRegular`。手抄的 `.bst-glyph` 包装层与对应样式一并删除。
+
 **0.2.2-rc.3 起**官方把「智能体团队」这枚 chip 搬出顶栏（挂到
 `conversation.session.header.actions.subagent.footer`，渲染任务板），顶栏里只剩子智能体与
 后台任务两枚；插件的团队装饰因此只对老内核生效，`check:instance` 会把「已移出顶栏」作为

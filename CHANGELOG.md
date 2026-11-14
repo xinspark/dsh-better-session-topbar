@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **面包屑的字形全部改用官方组件**：子智能体级从手抄 SVG（`SUBAGENT_SVG`，stroke 还被手调成 1.5）换成 `IconWorkspaceTreeOutlineRegular`；窄屏标题态里被压成图标的父级从手抄上下箭头换成 `IconChevronsUpDownOutlineRegular`。同排三级现在同一套 16 网格与 stroke，不会出现「只有子智能体那级偏粗」。手抄的 `.bst-glyph` 包装层与样式一并删除；`check:instance` 的「primitives 导出」联动到 14/14。
 - **chip 上的「两套图标」打架**：`::before + mask` 自绘的子智能体 / 后台任务图标已删除（保留 `SUBAGENT_SVG` 只给面包屑的子智能体级用）。历史上官方这两枚 trigger 不带图标，插件才补；0.2.2-rc.3 起官方在 `span.activitySlot` 里自带 14px 图标（`IconUsersOutlineRegular` / `IconLayersOutlineRegular`），再叠一枚自绘图标就成了「头一枚我们的、尾一枚官方的」。
 - **不再用 flex `order` 挪动官方子节点**：原来的「运行圆点挪到统计数之后」实际挪走的是整块 `activitySlot`（官方图标 + `StateDot`），这是上面那个视觉错乱的另一半原因。现在 chip 保持官方顺序 `activitySlot · 文字 · (N) · 箭头`，`data-bst-chip-dot` 标记与配套 CSS、卸载清理里的 `bstChipDot` 一并移除。
 - **`npm run check:instance` 在 DSH 会话里可以直接跑**：`tools/check-instance.mjs` 的实例发现新增 `DSH_INSTALL_DIR`（DSH 托管环境注入的「当前运行实例 app.asar」）优先于各平台硬编码候选路径，并同时接受 asar 文件与安装目录两种形态。此前本机实例装在多版本启动器的 `E:\FXS\APP\DSH NEXT\resources\app.asar`，不在候选列表里，只能手填 `--asar`；现在 `npm run check:instance` 开箱 **19/19 PASS**（`--asar` 与 `DSH_APP_ASAR` 仍最高优先，行为不变）。
