@@ -27,10 +27,11 @@
 ## 3. 每日 21:00 检查清单
 
 1. **GitHub**：列出 open Issues / PRs，每条给：现象、是否可复现、建议处置（修复 / 需要信息 / 关闭）、回复草稿。
-2. **DSH 版本**：记录当前实例版本（DSH NEXT 版本、runtime `@deepseek-ai/dsh` 版本、客户端包版本）；与插件上次适配的版本比对；先跑 `npm run check:instance`（读 `app.asar` 逐项核对槽位名 / 组件导出 / DOM 锚点 / 服务方法，逐项 PASS/FAIL，项数以脚本输出为准），再按「DSH 升级维护清单」10 类耦合点给出「本次升级是否影响」的结论。
-3. **待发布**：本地未推送提交、未发布 tag、版本号与 CHANGELOG 是否一致。
-4. **市场**：`awesome-dsh-plugin/awesome-dsh-plugin` 的 `data/plugins/xinspark__dsh-better-session-topbar.yml` 与 README 列表条目，是否与最新版本/功能一致；只输出 diff 草稿。
-5. **汇总**：把「今晚可执行的外部动作」逐项列出，等批准。
+2. **顶栏漂移**：先跑 `npm run check:topbar` —— 它把官方顶栏相关面（槽位 / 注册者 / chip 锚点与图标 / DOM 锚点 / primitives 图标）与 `tools/baseline/topbar.json` 对比，给出「这一版变了什么」；零差异就跳过第 3 步的逐项人读。确认无影响后 `npm run check:topbar -- --write` 把基线推到新实例，与结论一起提交。
+3. **DSH 版本**：记录当前实例版本（DSH NEXT 版本、runtime `@deepseek-ai/dsh` 版本、客户端包版本）；与插件上次适配的版本比对；先跑 `npm run check:instance`（读 `app.asar` 逐项核对槽位名 / 组件导出 / DOM 锚点 / 服务方法，逐项 PASS/FAIL，项数以脚本输出为准），再按「DSH 升级维护清单」10 类耦合点给出「本次升级是否影响」的结论。
+4. **待发布**：本地未推送提交、未发布 tag、版本号与 CHANGELOG 是否一致。
+5. **市场**：`awesome-dsh-plugin/awesome-dsh-plugin` 的 `data/plugins/xinspark__dsh-better-session-topbar.yml` 与 README 列表条目，是否与最新版本/功能一致；只输出 diff 草稿。
+6. **汇总**：把「今晚可执行的外部动作」逐项列出，等批准。
 
 ## 4. 发版流程
 
@@ -112,6 +113,13 @@
   - **实测**（带 token 的 Web GUI，刷新后 dump DOM）：`sub` 的 `::before` content 变 `none`、`activitySlot` 无 data 标记、三个子节点 `order` 全 0。
   - **一个取样陷阱**：agent 浏览器标签页处于 `document.hidden = true` 时，插件按设计不测量（rAF 挂起），于是刷新后只有首趟装饰过的那枚有标记 —— 这不是识别失败，看实机效果请在可见窗口里刷新。
   - 文档：`docs/design.md` §2、README 中英的 chip 行、新增经验 09。
+
+- [x] **顶栏漂移检测上线（2026-11-15，本地改动，未发版）**：`npm run check:topbar`（`tools/topbar-drift.mjs` + 基线 `tools/baseline/topbar.json`）。
+  - **动机**：`check:instance` 只验证已知断言；rc.3 把「智能体团队」从顶栏 chip 搬进 `subagent.footer`、包名去掉 `experimental` 这些变化，当时是人工读 asar 才发现的。现在把这一薄层指纹化，变化以 `+ / - / ~` 呈现。
+  - **覆盖**：10 个槽位 + 每个槽的注册者（`包#id@order`）、这些包 chip 的 `aria-haspopup` / activity 图标 / 计数节点标记 / 相关 i18n 键、顶栏 DOM 锚点与哈希类名、15 个用到的 primitives 图标；实例身份记 `shell / kernel / asar sha256 前 16 位`。
+  - **首份基线**（本机 rc.3）已能看出结构：`header.actions` 的占用者是 agent-preset@-10 / agent-terminals / subagent-catalog@10 / job-list@20，**agent-team 在 `…subagent.footer`** —— 与人工结论一致，等于把那次取证固化成了机器可核的基线。
+  - **双向验证**：基线不动 → 零差异；人为改 5 处（kernel、删一个包、改 popups、改类名、把图标置 false）→ 精确报 5 条。
+  - **顺带**：抽出 `tools/asar.mjs`（读取器 + 实例发现）给两个工具共用，`check-instance` 改为 import，仍 19/19。新工具初版把数据区偏移写成 `16 + jsonLen`，读 `package.json` 在 11999 处 JSON 解析失败 —— pickle 会 4 字节对齐补齐，正确起点是 `8 + headerPayload + 4`（已记进 `tools/asar.mjs` 注释）。
 
 > **发版通用纪律**：四侧一律以官方源直查为准（npm 用 `registry.npmjs.org`，不要用镜像的 404 判「没发出去」；GitHub 用 API 读 ref/tag/Release/run，别靠页面缓存）。本机镜像与代理配置见私有环境记录。
 

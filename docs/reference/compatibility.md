@@ -47,7 +47,11 @@
 
 ## DSH 升级对账流程
 
-1. `npm run check:instance` —— 直接读当前实例的 `app.asar`，18 项 PASS/FAIL；
+0. `npm run check:topbar` —— **先看「变了什么」**：它把官方顶栏相关面（槽位 / 谁注册进这些槽 /
+   chip 的 `aria-haspopup` 与 activity 图标 / 计数节点标记 / DOM 锚点与哈希类名 / 用到的 primitives
+   图标）与 `tools/baseline/topbar.json` 对比，输出 `+ / - / ~`。零差异可以直接跳到第 3 步；
+   有差异则按差异去读对应官方包，改动确认后再 `-- --write` 推基线；
+1. `npm run check:instance` —— 直接读当前实例的 `app.asar`，逐项 PASS/FAIL；
 2. 按 [装配契约](architecture.md#6-10-类耦合点升级后逐项复核) 的 10 类耦合点逐项复核；
 3. 实机点一遍：顶栏 / 两个下拉 / 添加工作区 / 详情页 / 行内「⋯」；
 4. 把结论与证据写进 `MAINTAINING.md` §6（零迁移也要写依据）。

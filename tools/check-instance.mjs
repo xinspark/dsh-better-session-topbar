@@ -18,94 +18,21 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+// asar 读取与实例发现与 `topbar-drift.mjs` 共用一份（别再各写一套偏移计算）。
+import { openAsar, resolveAsar } from './asar.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 // ---- 1. 找到 app.asar ------------------------------------------------------
-// 优先级：`--asar` → `DSH_APP_ASAR` → `DSH_INSTALL_DIR` → 各平台常见安装路径。
-// `DSH_INSTALL_DIR` 是 DSH 自己塞进托管环境里的「当前运行实例的 app.asar」——在 DSH 会话
-// 里跑本脚本时它一定存在，既不用记本机安装路径，也不受多版本启动器搬迁影响
-//（本机实测 `E:\FXS\APP\DSH NEXT\resources\app.asar`，不在下面那组候选里，于是
-//  `npm run check:instance` 原来只能靠手填 `--asar`）。它的值可能是 asar 文件本身，
-// 也可能是安装目录（再拼 `resources/app.asar`）。
-function fromInstallDir(value) {
-  if (typeof value !== 'string' || value === '') return null
-  if (value.toLowerCase().endsWith('.asar')) return fs.existsSync(value) ? value : null
-  if (!fs.existsSync(value)) return null
-  if (fs.statSync(value).isFile()) return value
-  for (const leaf of ['resources/app.asar', 'app.asar']) {
-    const candidate = path.join(value, leaf)
-    if (fs.existsSync(candidate)) return candidate
-  }
-  return null
-}
-
-function resolveAsar() {
-  const argv = process.argv.slice(2)
-  const flag = argv.indexOf('--asar')
-  const explicit = flag >= 0 ? argv[flag + 1] : process.env.DSH_APP_ASAR
-  if (explicit !== undefined && explicit !== '') {
-    if (!fs.existsSync(explicit)) fail(`app.asar not found: ${explicit}`)
-    return path.resolve(explicit)
-  }
-  const installed = fromInstallDir(process.env.DSH_INSTALL_DIR)
-  if (installed !== null) return installed
-  const local = process.env.LOCALAPPDATA ?? ''
-  const candidates = [
-    path.join(local, 'Programs', 'DSH NEXT', 'resources', 'app.asar'),
-    path.join(local, 'Programs', 'dsh-desktop-next', 'resources', 'app.asar'),
-    'C:/Program Files/DSH NEXT/resources/app.asar',
-    '/Applications/DSH NEXT.app/Contents/Resources/app.asar',
-    '/opt/DSH NEXT/resources/app.asar',
-  ].filter((entry) => entry !== '')
-  for (const candidate of candidates) if (fs.existsSync(candidate)) return candidate
-  fail('no app.asar found — pass --asar <path>, or set DSH_APP_ASAR / run inside a DSH session (DSH_INSTALL_DIR)')
-}
+// 实例发现搬到 `tools/asar.mjs`（`--asar` → `DSH_APP_ASAR` → `DSH_INSTALL_DIR` → 各平台候选），
+// 与顶栏漂移检测共用同一套规则。
 
 function fail(message) {
   console.error(`check-instance: ${message}`)
   process.exit(2)
 }
 
-// ---- 2. 最小 asar 读取器（无依赖）-----------------------------------------
-// 布局：[0..3]=4 · [4..7]=pickleSize · [8..11]=headerPayload · [12..15]=jsonLen
-//       [16..] JSON 目录树（文件 = {offset,size}）· 数据区从 8+payload+4 开始。
-function openAsar(asarPath) {
-  const fd = fs.openSync(asarPath, 'r')
-  const head = Buffer.alloc(16)
-  fs.readSync(fd, head, 0, 16, 0)
-  const jsonLen = head.readUInt32LE(12)
-  const headerBuf = Buffer.alloc(jsonLen)
-  fs.readSync(fd, headerBuf, 0, jsonLen, 16)
-  const tree = JSON.parse(headerBuf.toString('utf8'))
-  const dataStart = 8 + head.readUInt32LE(8) + 4
-
-  const node = (relPath) => {
-    let cur = tree
-    for (const part of relPath.split('/').filter(Boolean)) {
-      if (!cur || !cur.files || !cur.files[part]) return undefined
-      cur = cur.files[part]
-    }
-    return cur
-  }
-
-  return {
-    read(relPath) {
-      const entry = node(relPath)
-      if (!entry || entry.files) return undefined
-      const buf = Buffer.alloc(Number(entry.size))
-      fs.readSync(fd, buf, 0, Number(entry.size), dataStart + Number(entry.offset))
-      return buf.toString('utf8')
-    },
-    readJSON(relPath) {
-      const text = this.read(relPath)
-      return text === undefined ? undefined : JSON.parse(text)
-    },
-    close() {
-      fs.closeSync(fd)
-    },
-  }
-}
+// ---- 2. asar 读取器：见 `tools/asar.mjs`（read 对缺失/链接/未打包文件返回 null）----
 
 // ---- 3. 期望值从插件自己身上抽取，不在脚本里抄第二份 ---------------------
 // 读插件源码：**必须归一化换行**。Windows 工作树是 CRLF，而发布包（git blob → npm tarball）
@@ -217,7 +144,7 @@ const results = []
 const record = (ok, title, detail) => results.push({ ok, title, detail })
 
 function main() {
-  const asarPath = resolveAsar()
+  const asarPath = resolveAsar({ onFail: fail })
   const asar = openAsar(asarPath)
   const shell = asar.readJSON('package.json')
   const kernel = shell?.dependencies?.['@deepseek-ai/dsh'] ?? '?'

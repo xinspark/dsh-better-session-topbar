@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **版本基线元数据对齐 0.2.2-rc.3**：`package.json` 的 `dsh.verifiedAgainst` 从 `0.2.2-rc.1` 抬到 `0.2.2-rc.3`（与 `docs/reference/compatibility.md`、`MAINTAINING.md` §6 记录的 2.0.2 对账基线一致），README 中英的「验证基线」一行同步为 DSH NEXT 2.0.23-next / Harness 0.2.2-rc.3。
 - Issue 模板的两个占位版本号跟上现状：插件版本 `1.5.4` → `2.0.2`，DSH 版本 `2.0.22-next / 内核 0.2.2-rc.1` → `2.0.23-next / 内核 0.2.2-rc.3`。
 
+### Added
+
+- **`npm run check:topbar`（官方顶栏漂移检测）**：把与顶栏有关的那一薄层指纹化，和基线比出「这一版变了什么」，不再靠人读 13MB 源码。覆盖 10 个槽位与**谁注册进这些槽**（`包#id@order`）、这些包 chip 的结构锚点（`aria-haspopup`）、activity 图标、计数节点标记、相关 i18n 键、顶栏 DOM 锚点与哈希类名、15 个本插件用到的 primitives 图标；基线在 `tools/baseline/topbar.json`。`--write` 推基线，`--fail-on-drift` 供定时任务用，`--json` 出机器可读结果。已做双向验证：基线不动 → 零差异；人为改 5 处 → 精确报 5 条。
+- **`tools/asar.mjs`**：把 asar 读取与实例发现（`--asar` → `DSH_APP_ASAR` → `DSH_INSTALL_DIR` → 平台候选）抽成两个工具共用的一份。顺带修掉我在新工具里写错的数据区偏移（`16 + jsonLen` → `8 + headerPayload + 4`，pickle 会对齐补齐）。
+
 ### Fixed
 
 - **面包屑的字形全部改用官方组件**：子智能体级从手抄 SVG（`SUBAGENT_SVG`，stroke 还被手调成 1.5）换成 **`IconUsersOutlineRegular`** —— 官方 `dsh-client-ui-subagent` 表达「子智能体」用的就是它（顶栏那枚 chip 同源）；上一版曾换成 `IconWorkspaceTreeOutlineRegular`，那是 `dsh-client-ui-workspace` 的「工作区树」，16px 下像一张小卡片，语义不对。窄屏标题态里被压成图标的父级换成 `IconChevronsUpDownOutlineRegular`。同排三级现在同一套 16 网格与 stroke；手抄的 `.bst-glyph` 包装层与样式一并删除；`check:instance` 的「primitives 导出」联动到 14/14。

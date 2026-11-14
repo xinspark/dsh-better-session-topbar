@@ -8,6 +8,7 @@
 | --- | --- | --- |
 | `npm test` | 用桩 React/primitives 执行工厂与组件渲染体；覆盖「有/无 `contextMenus`」两种场景；八本字典键集一致、值非空、`en` 无 CJK、`locale/*.json` meta 完整；求星行注册在 `plugins.detail.section`（`order < 90`）且按 `subject.pkg.name` 过滤；**chip 识别的静态契约**（`CHIP_ANCHORS` 仍在、子智能体锚点未丢、没有残留的 `CHIP_SELECTORS` 引用）与**行尾门**（`lib/client.js` 必须是 LF） | 外观、真实宿主行为、测量 effect（渲染体跑不到） |
 | `npm run check:instance` | 直接读当前实例 `app.asar`（路径优先级：`--asar` → `DSH_APP_ASAR` → `DSH_INSTALL_DIR` → 各平台常见安装路径）：primitives 导出、四个槽位名、三个顶栏 DOM 锚点与 lineage 槽、`workspaces` / `uiWorkspace` 方法（按代码实际调用抽取）、`contextMenus` 服务、原生行内菜单注册（会话 · 工作区）、`workspace.add`、`locale` 入口、8 语言 chip 关键字、chip 结构锚点、目录选择 occupant、preload 桥（项数以脚本输出为准，当前 19） | 运行时交互 |
+| `npm run check:topbar` | **官方顶栏漂移检测**：把与顶栏有关的面（10 个槽位、哪些官方包注册进这些槽、每个包 chip 的 `aria-haspopup` / activity 图标 / 计数节点标记 / 相关 i18n 键、顶栏 DOM 锚点与哈希类名、15 个用到的 primitives 图标）指纹化，与 `tools/baseline/topbar.json` 对比，输出 `+ 新增 / - 移除 / ~ 变化`；`--write` 更新基线，`--fail-on-drift` 供定时任务用 | 不做语义判断，差异要人判；基线里的类名是哈希，每次官方构建都会变（属正常噪声） |
 | `node tools/check-docs.mjs` | 文档相对链接与锚点（CI 里随 `npm test` 一起跑） | 文档内容正确性 |
 
 ## 发布前实机清单

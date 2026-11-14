@@ -27,6 +27,7 @@
   "scripts": {
     "test": "node test/render-smoke.cjs && node tools/check-docs.mjs",
     "check:instance": "node tools/check-instance.mjs",
+    "check:topbar": "node tools/topbar-drift.mjs",
     "check:docs": "node tools/check-docs.mjs"
   },
   "peerDependencies": {

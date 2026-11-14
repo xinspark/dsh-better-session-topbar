@@ -1,0 +1,495 @@
+{
+  "instance": {
+    "shell": "2.0.23-next",
+    "kernel": "0.2.2-rc.3",
+    "asarSha": "003b66e87e2e7f78"
+  },
+  "headerDom": {
+    "windowDrag": true,
+    "headerActionsClass": "aB2X2W",
+    "crumbsClass": "aB2X2W"
+  },
+  "slots": {
+    "conversation.session.header.actions": {
+      "owners": [
+        "dsh-client-ui-agent-preset#agent-preset@-10",
+        "dsh-client-ui-jobs#job-list@20",
+        "dsh-client-ui-sidebar-terminal#agent-terminals@-",
+        "dsh-client-ui-subagent#subagent-catalog@10"
+      ],
+      "mentionedBy": [
+        "dsh-client-ui-agent-preset",
+        "dsh-client-ui-jobs",
+        "dsh-client-ui-sidebar-terminal",
+        "dsh-client-ui-subagent",
+        "dsh-cordis-client-runner"
+      ]
+    },
+    "conversation.session.header.actions.subagent.footer": {
+      "owners": [
+        "dsh-client-ui-agent-team#agent-team@-"
+      ],
+      "mentionedBy": [
+        "dsh-client-ui-agent-team",
+        "dsh-cordis-client-runner"
+      ]
+    },
+    "conversation.session.header.lineage": {
+      "owners": [
+        "dsh-client-ui-subagent#subagent-catalog@10"
+      ],
+      "mentionedBy": [
+        "dsh-client-ui-subagent",
+        "dsh-cordis-client-runner"
+      ]
+    },
+    "conversation.session.header.utilities": {
+      "owners": [
+        "dsh-client-ui-schedule#schedule-catalog@-5",
+        "dsh-experimental-client-ui-forge#forge-panel@-8",
+        "dsh-experimental-liveshare#liveshare-share@-7"
+      ],
+      "mentionedBy": [
+        "dsh-client-ui-schedule",
+        "dsh-cordis-client-runner",
+        "dsh-experimental-client-ui-forge",
+        "dsh-experimental-liveshare"
+      ]
+    },
+    "conversation.session.header.corner": {
+      "owners": [],
+      "mentionedBy": [
+        "dsh-client-ui-sidebar-right",
+        "dsh-cordis-client-runner"
+      ]
+    },
+    "conversation.session.header": {
+      "owners": [],
+      "mentionedBy": [
+        "dsh-client-ui-conversation",
+        "dsh-cordis-client-runner"
+      ]
+    },
+    "plugins.row.config": {
+      "owners": [],
+      "mentionedBy": [
+        "dsh-cordis-client-runner",
+        "dsh-experimental-client-ui-forge"
+      ]
+    },
+    "plugins.detail.section": {
+      "owners": [],
+      "mentionedBy": [
+        "dsh-cordis-client-runner"
+      ]
+    },
+    "sidebar.workspaces.directoryFlow": {
+      "owners": [],
+      "mentionedBy": [
+        "dsh-client-ui-directory-picker-browse",
+        "dsh-client-ui-directory-picker-native",
+        "dsh-cordis-client-runner"
+      ]
+    },
+    "conversation.hero.workspace.directoryFlow": {
+      "owners": [],
+      "mentionedBy": [
+        "dsh-client-ui-directory-picker-browse",
+        "dsh-client-ui-directory-picker-native",
+        "dsh-cordis-client-runner"
+      ]
+    }
+  },
+  "packages": {
+    "dsh-client-ui-agent-preset": {
+      "slots": [
+        "conversation.session.header.actions"
+      ],
+      "registrations": [
+        "conversation.session.header.actions#agent-preset@-10"
+      ],
+      "chip": {
+        "popups": [
+          "menu"
+        ],
+        "activityIcons": [],
+        "hasActivitySlot": false,
+        "hasStateDot": false,
+        "countDataMarkers": [],
+        "i18nKeys": []
+      }
+    },
+    "dsh-client-ui-agent-team": {
+      "slots": [
+        "conversation.session.header.actions.subagent.footer"
+      ],
+      "registrations": [
+        "conversation.session.header.actions.subagent.footer#-@-",
+        "conversation.session.header.actions.subagent.footer#agent-team@-"
+      ],
+      "chip": {
+        "popups": [],
+        "activityIcons": [],
+        "hasActivitySlot": false,
+        "hasStateDot": true,
+        "countDataMarkers": [],
+        "i18nKeys": [
+          "row",
+          "trigger"
+        ]
+      }
+    },
+    "dsh-client-ui-conversation": {
+      "slots": [
+        "conversation.session.header"
+      ],
+      "registrations": [
+        "conversation.session.header#-@-"
+      ],
+      "chip": {
+        "popups": [
+          "dialog",
+          "listbox",
+          "menu"
+        ],
+        "activityIcons": [],
+        "hasActivitySlot": false,
+        "hasStateDot": true,
+        "countDataMarkers": [],
+        "i18nKeys": [
+          "activity",
+          "activityExpanded",
+          "count",
+          "row",
+          "row.commandArguments",
+          "row.failed",
+          "row.imageSize",
+          "row.imageSizeDownscaled",
+          "row.input",
+          "row.inspect",
+          "row.output",
+          "row.preparing",
+          "row.running",
+          "row.stopped",
+          "rowText",
+          "rows",
+          "trigger"
+        ]
+      }
+    },
+    "dsh-client-ui-directory-picker-browse": {
+      "slots": [
+        "conversation.hero.workspace.directoryFlow",
+        "sidebar.workspaces.directoryFlow"
+      ],
+      "registrations": [
+        "conversation.hero.workspace.directoryFlow#-@-",
+        "conversation.hero.workspace.directoryFlow#-@-",
+        "sidebar.workspaces.directoryFlow#-@-",
+        "sidebar.workspaces.directoryFlow#-@-"
+      ],
+      "chip": {
+        "popups": [],
+        "activityIcons": [],
+        "hasActivitySlot": false,
+        "hasStateDot": false,
+        "countDataMarkers": [],
+        "i18nKeys": [
+          "row",
+          "rowChevron",
+          "rowIcon",
+          "rowIconSelected",
+          "rowName",
+          "rowSeat",
+          "rowSelected"
+        ]
+      }
+    },
+    "dsh-client-ui-directory-picker-native": {
+      "slots": [
+        "conversation.hero.workspace.directoryFlow",
+        "sidebar.workspaces.directoryFlow"
+      ],
+      "registrations": [
+        "conversation.hero.workspace.directoryFlow#-@-",
+        "conversation.hero.workspace.directoryFlow#-@-",
+        "sidebar.workspaces.directoryFlow#-@-",
+        "sidebar.workspaces.directoryFlow#-@-"
+      ],
+      "chip": {
+        "popups": [],
+        "activityIcons": [],
+        "hasActivitySlot": false,
+        "hasStateDot": false,
+        "countDataMarkers": [],
+        "i18nKeys": []
+      }
+    },
+    "dsh-client-ui-jobs": {
+      "slots": [
+        "conversation.session.header.actions"
+      ],
+      "registrations": [
+        "conversation.session.header.actions#-@-",
+        "conversation.session.header.actions#job-list@20"
+      ],
+      "chip": {
+        "popups": [],
+        "activityIcons": [
+          "IconLayersOutlineRegular"
+        ],
+        "hasActivitySlot": true,
+        "hasStateDot": true,
+        "countDataMarkers": [
+          "job-count"
+        ],
+        "i18nKeys": [
+          "activitySlot",
+          "count",
+          "count.idle.one",
+          "count.idle.other",
+          "row",
+          "row.collapseAria",
+          "row.expandAria",
+          "rowDot",
+          "rowLine",
+          "rowLineLive",
+          "rowSettled",
+          "rowStatic",
+          "trigger"
+        ]
+      }
+    },
+    "dsh-client-ui-schedule": {
+      "slots": [
+        "conversation.session.header.utilities"
+      ],
+      "registrations": [
+        "conversation.session.header.utilities#-@-",
+        "conversation.session.header.utilities#schedule-catalog@-5"
+      ],
+      "chip": {
+        "popups": [
+          "dialog",
+          "menu"
+        ],
+        "activityIcons": [],
+        "hasActivitySlot": false,
+        "hasStateDot": true,
+        "countDataMarkers": [],
+        "i18nKeys": [
+          "row",
+          "rowContent",
+          "rowGlyph",
+          "rowOverdue",
+          "rowSummary",
+          "rowTask",
+          "rowTitle",
+          "trigger",
+          "trigger.label",
+          "trigger.one",
+          "trigger.other"
+        ]
+      }
+    },
+    "dsh-client-ui-sidebar-right": {
+      "slots": [
+        "conversation.session.header.corner"
+      ],
+      "registrations": [
+        "conversation.session.header.corner#-@-",
+        "conversation.session.header.corner#-@-"
+      ],
+      "chip": {
+        "popups": [
+          "menu"
+        ],
+        "activityIcons": [],
+        "hasActivitySlot": false,
+        "hasStateDot": false,
+        "countDataMarkers": [],
+        "i18nKeys": []
+      }
+    },
+    "dsh-client-ui-sidebar-terminal": {
+      "slots": [
+        "conversation.session.header.actions"
+      ],
+      "registrations": [
+        "conversation.session.header.actions#-@-",
+        "conversation.session.header.actions#agent-terminals@-"
+      ],
+      "chip": {
+        "popups": [
+          "menu"
+        ],
+        "activityIcons": [],
+        "hasActivitySlot": false,
+        "hasStateDot": false,
+        "countDataMarkers": [],
+        "i18nKeys": [
+          "trigger"
+        ]
+      }
+    },
+    "dsh-client-ui-subagent": {
+      "slots": [
+        "conversation.session.header.actions",
+        "conversation.session.header.lineage"
+      ],
+      "registrations": [
+        "conversation.session.header.actions#-@-",
+        "conversation.session.header.actions#subagent-catalog@10",
+        "conversation.session.header.lineage#-@-",
+        "conversation.session.header.lineage#subagent-catalog@10"
+      ],
+      "chip": {
+        "popups": [
+          "dialog"
+        ],
+        "activityIcons": [
+          "IconUsersOutlineRegular"
+        ],
+        "hasActivitySlot": true,
+        "hasStateDot": true,
+        "countDataMarkers": [
+          "subagent-count"
+        ],
+        "i18nKeys": [
+          "activity.completed",
+          "activity.inactive",
+          "activity.running",
+          "activitySlot",
+          "count",
+          "count.running.one",
+          "count.running.other",
+          "count.total.one",
+          "count.total.other",
+          "row",
+          "rowActivitySlot",
+          "switcher.aria",
+          "switcherRoot",
+          "switcherTitle",
+          "switcherTrigger",
+          "trigger"
+        ]
+      }
+    },
+    "dsh-cordis-client-runner": {
+      "slots": [
+        "conversation.hero.workspace.directoryFlow",
+        "conversation.session.header",
+        "conversation.session.header.actions",
+        "conversation.session.header.actions.subagent.footer",
+        "conversation.session.header.corner",
+        "conversation.session.header.lineage",
+        "conversation.session.header.utilities",
+        "plugins.detail.section",
+        "plugins.row.config",
+        "sidebar.workspaces.directoryFlow"
+      ],
+      "registrations": [
+        "conversation.hero.workspace.directoryFlow#-@-",
+        "conversation.hero.workspace.directoryFlow#-@-",
+        "conversation.session.header#-@-",
+        "conversation.session.header#-@-",
+        "conversation.session.header.actions#-@-",
+        "conversation.session.header.actions.subagent.footer#-@-",
+        "conversation.session.header.corner#-@-",
+        "conversation.session.header.corner#-@-",
+        "conversation.session.header.lineage#-@-",
+        "conversation.session.header.lineage#-@-",
+        "conversation.session.header.utilities#-@-",
+        "plugins.detail.section#-@-",
+        "plugins.row.config#-@-",
+        "plugins.row.config#-@-",
+        "sidebar.workspaces.directoryFlow#-@-",
+        "sidebar.workspaces.directoryFlow#-@-"
+      ],
+      "chip": {
+        "popups": [],
+        "activityIcons": [],
+        "hasActivitySlot": false,
+        "hasStateDot": false,
+        "countDataMarkers": [],
+        "i18nKeys": []
+      }
+    },
+    "dsh-experimental-client-ui-forge": {
+      "slots": [
+        "conversation.session.header.utilities",
+        "plugins.row.config"
+      ],
+      "registrations": [
+        "conversation.session.header.utilities#-@-",
+        "conversation.session.header.utilities#forge-panel@-8",
+        "plugins.row.config#-@-",
+        "plugins.row.config#-@-"
+      ],
+      "chip": {
+        "popups": [
+          "menu"
+        ],
+        "activityIcons": [],
+        "hasActivitySlot": false,
+        "hasStateDot": true,
+        "countDataMarkers": [],
+        "i18nKeys": [
+          "count",
+          "counts",
+          "row",
+          "rowAnchor",
+          "rowButton",
+          "rowChevron",
+          "rowIcon",
+          "rowTrailing",
+          "rowValue",
+          "rowWide",
+          "rows",
+          "trigger",
+          "triggerChevron",
+          "triggerLabel",
+          "triggerName"
+        ]
+      }
+    },
+    "dsh-experimental-liveshare": {
+      "slots": [
+        "conversation.session.header.utilities"
+      ],
+      "registrations": [
+        "conversation.session.header.utilities#-@-",
+        "conversation.session.header.utilities#liveshare-share@-7"
+      ],
+      "chip": {
+        "popups": [],
+        "activityIcons": [],
+        "hasActivitySlot": false,
+        "hasStateDot": false,
+        "countDataMarkers": [],
+        "i18nKeys": [
+          "row",
+          "rowLabel",
+          "trigger"
+        ]
+      }
+    }
+  },
+  "icons": {
+    "IconFolderCloseRegular": true,
+    "IconChevronDownOutlineRegular": true,
+    "IconChevronUpOutlineRegular": true,
+    "IconNewChatOutlineRegular": true,
+    "IconProjectAddOutlineRegular": true,
+    "IconEllipsisOutlineRegular": true,
+    "IconQueueOutlineRegular": true,
+    "IconUsersOutlineRegular": true,
+    "IconChevronsUpDownOutlineRegular": true,
+    "IconFolderOpenOutlineRegular": true,
+    "IconListPenOutlineRegular": true,
+    "IconLayersOutlineRegular": true,
+    "Modal": false,
+    "Button": true,
+    "Switch": false
+  }
+}
