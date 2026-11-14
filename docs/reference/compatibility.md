@@ -26,6 +26,16 @@
 
 **降级是刻意的**：没有 `contextMenus` 时插件不为「⋯」保留第二套自绘菜单，侧栏仍是完整入口。
 
+## 官方顶栏自身的版本差异（影响被装饰的 chip）
+
+| 内核 | 顶栏里的 chip | 插件怎么认 |
+| --- | --- | --- |
+| 0.2.2-rc.3 | 子智能体、后台任务（**智能体团队已移出顶栏**，改挂 `conversation.session.header.actions.subagent.footer` 的任务板） | 子智能体优先用结构锚点 `aria-haspopup="dialog"`，后台任务用文案兜底 |
+| 0.2.2-rc.1 及更早 | 子智能体、智能体团队、后台任务 | 团队用 `[data-team-action]` 容器锚点，其余文案兜底 |
+
+团队包名也随版本变了（`dsh-experimental-client-ui-agent-team` → `dsh-client-ui-agent-team`），
+`check:instance` 两个路径都试，并把「已移出顶栏」作为一条结论打出来 —— 不再是静默跳过。
+
 ## 只在新内核上才有的能力
 
 | 能力 | 依赖 | 首次可用 |

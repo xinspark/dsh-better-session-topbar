@@ -117,7 +117,7 @@ docs-private/
 # X.Y.Z 发版检查清单（私有）
 
 - [ ] `npm test`（渲染冒烟 + 语言键集 + 文档链接）
-- [ ] `npm run check:instance`（18 项 PASS）
+- [ ] `npm run check:instance`（全 PASS，项数以输出为准）
 - [ ] `docs/testing.md` 的实机清单逐项勾选
 - [ ] 版本号、CHANGELOG 定版、tag、Release、npm、市场（对外动作逐项批准）
 - [ ] `locale/*.json` 改动已重启验证

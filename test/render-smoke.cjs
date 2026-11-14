@@ -336,4 +336,30 @@ const sameKeys = (a, b) => a.size === b.size && [...a].every((key) => b.has(key)
   }
 }
 
+// ---- 场景四：chip 识别的静态契约（渲染体跑不到测量 effect，只能查源码） --------
+// 这一趟防的是「改了名但残留旧引用」这类错误：`CHIP_SELECTORS[key]` 在 effect 里执行，
+// 冒烟执行的渲染体根本走不到，等到实机才炸。所以直接对着源码断言。
+{
+  // 归一化换行再断言：仓库约定 LF，万一被写成 CRLF（见 docs/experience/08），
+  // 按行尾写的正则在本地会失配、git 还会把整文件算成改动。
+  // 第一条断言就是这个约定本身：混进 CRLF 立刻红。
+  if (src.includes('\r\n')) {
+    throw new Error('lib/client.js must use LF line endings (see docs/experience/08)')
+  }
+  const flat = src.replace(/\r\n?/g, '\n')
+  const anchorsAt = flat.indexOf('const CHIP_ANCHORS = {')
+  if (anchorsAt < 0) throw new Error('CHIP_ANCHORS is gone')
+  const anchorsBlock = flat.slice(anchorsAt, flat.indexOf('\n            }', anchorsAt))
+  if (!/sub:\s*\{\s*selector:\s*'[^']*aria-haspopup="dialog"/.test(anchorsBlock)) {
+    throw new Error('subagent chip must keep its structural anchor (aria-haspopup="dialog")')
+  }
+  if (!/trustUnique:\s*true/.test(anchorsBlock)) {
+    throw new Error('the subagent anchor must be trusted when unique')
+  }
+  if (/CHIP_SELECTORS/.test(src)) throw new Error('stale CHIP_SELECTORS reference left behind')
+  if (!/findChip\(key,\s*CHIP_HINTS\[key\],\s*CHIP_ANCHORS\[key\]\)/.test(src)) {
+    throw new Error('findChip must be fed the anchor map, not a hand-picked selector')
+  }
+}
+
 console.log('smoke OK: header breadcrumb + settings rendered; native menu targets wired')

@@ -27,7 +27,7 @@
 ## 3. 每日 21:00 检查清单
 
 1. **GitHub**：列出 open Issues / PRs，每条给：现象、是否可复现、建议处置（修复 / 需要信息 / 关闭）、回复草稿。
-2. **DSH 版本**：记录当前实例版本（DSH NEXT 版本、runtime `@deepseek-ai/dsh` 版本、客户端包版本）；与插件上次适配的版本比对；先跑 `npm run check:instance`（读 `app.asar` 逐项核对槽位名 / 组件导出 / DOM 锚点 / 服务方法，16 项 PASS/FAIL），再按「DSH 升级维护清单」10 类耦合点给出「本次升级是否影响」的结论。
+2. **DSH 版本**：记录当前实例版本（DSH NEXT 版本、runtime `@deepseek-ai/dsh` 版本、客户端包版本）；与插件上次适配的版本比对；先跑 `npm run check:instance`（读 `app.asar` 逐项核对槽位名 / 组件导出 / DOM 锚点 / 服务方法，逐项 PASS/FAIL，项数以脚本输出为准），再按「DSH 升级维护清单」10 类耦合点给出「本次升级是否影响」的结论。
 3. **待发布**：本地未推送提交、未发布 tag、版本号与 CHANGELOG 是否一致。
 4. **市场**：`awesome-dsh-plugin/awesome-dsh-plugin` 的 `data/plugins/xinspark__dsh-better-session-topbar.yml` 与 README 列表条目，是否与最新版本/功能一致；只输出 diff 草稿。
 5. **汇总**：把「今晚可执行的外部动作」逐项列出，等批准。
@@ -69,7 +69,7 @@
 - [x] **`0.0.0-stage` 占位版本 —— 已知遗留，决定不处理**（2026-10-29，所有者决定）：staged publishing 首次发布留下的空壳，不在 `latest` 上、`dsh plugin add` 永远装到稳定版，**不影响安装与运行**。清理需要临时调整 2FA 与令牌，属高风险运维操作；**清理步骤见私有记录**，在所有者明确要求前不动。
 - [x] **实机验收**（2026-10-29，所有者本人执行）：干净 profile 实装 tag 版 + rc.3 界面点检（顶栏 / 两个下拉 / 添加工作区 / 插件详情页）已跑完，**无问题**。维护者未逐项复核，本条以所有者确认为准。
 - [x] **实例同步：2.0.20 / rc.3 → 2.0.21-next / rc.4**（2026-10-30，本地提交 `1.5.4`）：**结论零迁移**。逐包 sha256 比对 npm tarball（rc.3 vs rc.4）：`primitives` 的 `lib/index.js` **540,800 字节逐字相同**；`conversation` 只有会话视图标签 tooltip（去掉 `session.moreViewsCurrent`）与顶栏无关；`ui-workspace` / `slots` / `locale` / `layout` / `dsh-workspace` / `host-directory-picker-auto` 只改 `package.json`。桌面壳 2.0.21-next 的更新说明里没有顶栏/标题栏改动（上游 rc.4 + 启动与窗口状态恢复 + 恢复助手 + Agents Anywhere 2.1.0）。运行期用 `cordis_inspect_query`（client Slots）复核：`conversation.session.header.actions` 仍是 session 作用域 list 槽，`bst-breadcrumb -40`（active）排最前，其余五个原生项顺序与 rc.3 相同；`plugins.row.config` 的键仍 active。**代码零改动，只改注释与文档**。
-- [x] **新增实例对账命令**（2026-10-30）：`tools/check-instance.mjs` + `npm run check:instance` —— 直接读当前实例的 `app.asar`，核对 16 项硬契约（primitives 21 个具名导出、四个槽位名、四个顶栏 DOM 锚点、`workspaces` / `sessions` 门面方法、`uiWorkspace` 五个方法、`workspace.add`、`locale` 入口、宿主目录选择 occupant、preload 桥）。期望值从 `lib/client.js` 自己抽取，不在脚本里抄第二份；`tools/` 不在 npm `files` 白名单，不随包发布。本机实测 16/16 PASS。（2026-11-05 起：服务方法改为从代码**实际调用**处抽取，并新增 `contextMenus`、原生会话菜单注册、8 语言 chip 文案关键字三项，现为 **18 项**；见 §7。）
+- [x] **新增实例对账命令**（2026-10-30）：`tools/check-instance.mjs` + `npm run check:instance` —— 直接读当前实例的 `app.asar`，核对 16 项硬契约（primitives 21 个具名导出、四个槽位名、四个顶栏 DOM 锚点、`workspaces` / `sessions` 门面方法、`uiWorkspace` 五个方法、`workspace.add`、`locale` 入口、宿主目录选择 occupant、preload 桥）。期望值从 `lib/client.js` 自己抽取，不在脚本里抄第二份；`tools/` 不在 npm `files` 白名单，不随包发布。本机实测 16/16 PASS。（2026-11-05 起：服务方法改为从代码**实际调用**处抽取，并新增 `contextMenus`、原生会话菜单注册、8 语言 chip 文案关键字三项；2026-11-15 又加入「chip 结构锚点」并把会话/工作区菜单合成一项，**现为 19 项**，项数以脚本输出为准；见 §7。）
 - [x] **v1.5.4 发布**（2026-10-30/31）：四侧完成。远端 `main` = `b28097a`；tag `v1.5.4`（annotated，peel 到 `b28097a`）；Release <https://github.com/xinspark/dsh-better-session-topbar/releases/tag/v1.5.4>（非 draft / 非 prerelease，`publishedAt` 2026-10-30T19:57:05Z）；Actions run `41119390181` success → `npm publish --provenance`，registry.npmjs.org `dist-tags.latest = 1.5.4`（`2026-10-30T19:58:22.797Z`，带 SLSA provenance + sigstore 签名），镜像 npmmirror 随后同步到 1.5.4。内容核对：发布包里的 `lib/client.js` 与提交 `b28097a` 的 blob **逐字节相同**（174,193 B）。市场条目**未动**（目录无 version 字段，功能描述未变；描述前缀 PR #10234 已于 2026-10-28T23:20:11Z 合并）。本地：相关 profile 的软链均解析到 1.5.4，运行实例里 `bst-breadcrumb -40` active。
 - [x] **v2.0.0 发布（四侧取证，2026-11-05）**：
   - **本地**：`package.json` = 2.0.0；`npm test` 通过（渲染冒烟 + 八本字典 + 23 个文档链接）；`check:instance` 18/18；annotated tag `v2.0.0` → 发布提交 `7d21d75`；profile 链接解析到 2.0.0。本地 `npm pack` 的 `lib/client.js` 因 Windows 工作树 CRLF 与发布包不同，**以 git blob 比对为准**（见 npm 侧）。
@@ -94,10 +94,17 @@
   - **插件市场**：条目 `url` / `name` / `category` 未变，目录无 version 字段，描述仍准确，**本轮不改**，无需 PR。
 
 - [x] **工具与元数据校正（2026-11-15，本地改动，未发版）**：三处与实际情况脱钩的地方对齐，代码零行为变化。
-  - **`check:instance` 能开箱跑**：实例发现加 `DSH_INSTALL_DIR`（DSH 托管环境注入的当前实例 `app.asar`），优先级 `--asar` → `DSH_APP_ASAR` → `DSH_INSTALL_DIR` → 各平台候选路径，并接受 asar 文件或安装目录两种形态。根因：本机实例在多版本启动器目录 `E:\FXS\APP\DSH NEXT\resources\app.asar` 下，不在硬编码候选里，此前必须先手填 `--asar`。现在 `npm run check:instance` 直接 **18/18 PASS**（`dsh-desktop-next 2.0.23-next · harness 0.2.2-rc.3`）。
+  - **`check:instance` 能开箱跑**：实例发现加 `DSH_INSTALL_DIR`（DSH 托管环境注入的当前实例 `app.asar`），优先级 `--asar` → `DSH_APP_ASAR` → `DSH_INSTALL_DIR` → 各平台候选路径，并接受 asar 文件或安装目录两种形态。根因：本机实例在多版本启动器目录 `E:\FXS\APP\DSH NEXT\resources\app.asar` 下，不在硬编码候选里，此前必须先手填 `--asar`。现在 `npm run check:instance` 直接 **PASS**（当时 18 项；`dsh-desktop-next 2.0.23-next · harness 0.2.2-rc.3`）。
   - **`dsh.verifiedAgainst` 从 `0.2.2-rc.1` 抬到 `0.2.2-rc.3`**：与 2.0.2 的对账基线（§6 上一条 / `docs/reference/compatibility.md`）一致；README 中英「验证基线」行同步为 2.0.23-next / 0.2.2-rc.3。
   - **Issue 模板占位版本号**：插件 `1.5.4` → `2.0.2`，DSH `2.0.22-next / 0.2.2-rc.1` → `2.0.23-next / 0.2.2-rc.3`。
-  - 门：`npm test`（渲染冒烟 + 23 个文档链接）通过；`check:instance` 18/18。**`package.json` 版本号未动（仍 2.0.2），这批改动进 CHANGELOG `[Unreleased]`，随下个版本发布**；`tools/` 不在 npm `files` 白名单，脚本改动本身不改变发布包内容。
+  - 门：`npm test`（渲染冒烟 + 23 个文档链接）通过；`check:instance` 全 PASS（当时 18 项）。**`package.json` 版本号未动（仍 2.0.2），这批改动进 CHANGELOG `[Unreleased]`，随下个版本发布**；`tools/` 不在 npm `files` 白名单，脚本改动本身不改变发布包内容。
+
+- [x] **chip 识别改结构锚点优先（2026-11-15，本地改动，未发版）**：本轮把「三枚 chip 靠 8 语言文案识别」这条最脆的路收窄，同时抓出对账脚本两处假绿。
+  - **取证**（逐包读实例 `app.asar` 的官方 client.js）：子智能体 trigger 带 `aria-haspopup="dialog"`，而 `conversation.session.header.actions` 槽里另外三枚（agent-preset / agent-terminals / job-list）都没有 → 用它作锚点，语言无关；后台任务 trigger 只有 `aria-expanded` + i18n `aria-label`，**没有**结构锚点，仍走文案；`role="tree"` 在弹层内部而非 trigger 上（拿它当锚点会认错人）。
+  - **实现**：新增 `CHIP_ANCHORS`；锚点命中唯一才直接采信，命中多个必须文案也对得上（conversation 的 ContextMeter 同样 `aria-haspopup="dialog"`，宁可少装饰）；缓存复用条件放宽为「文案匹配或仍命中锚点」。
+  - **抓到的两处假绿**：① agent-team 包在 rc.3 改名 `dsh-client-ui-agent-team`，旧脚本只认 `dsh-experimental-…`，把「契约变了」写成「未安装跳过：team」；而且那枚 chip 已被官方移出顶栏（改挂 `…header.actions.subagent.footer` 渲染任务板），插件的团队装饰只对老内核生效。② `lib/client.js` 的行尾曾被写成 CRLF（仓库约定 LF），按行尾写的正则因此在本地失配，同时 git 把整个文件算成改动；现在读源码统一走归一化入口（去 BOM + CRLF→LF），并加了一条门：`lib/client.js` 里出现 `\r\n` 即红。
+  - **门与文档**：`check:instance` 新增「chip 结构锚点」（期望值从 `CHIP_ANCHORS` 抽取）、「原生会话菜单注册」并成「原生行内菜单注册（会话 · 工作区）」，现 **19/19**；`docs/design.md` §2、`docs/reference/compatibility.md`（新增官方顶栏版本差异表）、README 中英、新增经验 07 / 08 同步。
+  - **实机 DOM 复核（2026-11-15，出于所有者的浏览器 session，带 token 的 Web GUI）**：顶栏实测 —— 面包屑三级/两级都正常收缩为图标态（886px 窗口下 `.bst-crumb-btn.bst-crumb-iconic`），子智能体 chip 同时带 `data-bst-chip="sub"`、`data-bst-chip-mode="count"`、`aria-label="3 个子智能体"` 与 `aria-haspopup="dialog"`；同排 `分享` / `更多操作` / 视图页签 / `更多会话视图` 全部 `popup=menu` 或空，**header 里 `aria-haspopup="dialog"` 只有那一个命中** → 锚点唯一性成立；顶栏里没有 team chip（与 rc.3 移出顶栏一致），也没有 jobs chip（该会话没有后台任务）。截图存 `docs-private/topbar-live-2026-11-15.png`。
 
 > **发版通用纪律**：四侧一律以官方源直查为准（npm 用 `registry.npmjs.org`，不要用镜像的 404 判「没发出去」；GitHub 用 API 读 ref/tag/Release/run，别靠页面缓存）。本机镜像与代理配置见私有环境记录。
 

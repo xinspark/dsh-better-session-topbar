@@ -6,8 +6,8 @@
 
 | 命令 | 覆盖 | 不覆盖 |
 | --- | --- | --- |
-| `npm test` | 用桩 React/primitives 执行工厂与组件渲染体；覆盖「有/无 `contextMenus`」两种场景；八本字典键集一致、值非空、`en` 无 CJK、`locale/*.json` meta 完整；求星行注册在 `plugins.detail.section`（`order < 90`）且按 `subject.pkg.name` 过滤 | 外观、真实宿主行为 |
-| `npm run check:instance` | 直接读当前实例 `app.asar`（路径优先级：`--asar` → `DSH_APP_ASAR` → `DSH_INSTALL_DIR` → 各平台常见安装路径）：primitives 导出、四个槽位名、三个顶栏 DOM 锚点与 lineage 槽、`workspaces` / `uiWorkspace` 方法（按代码实际调用抽取）、`contextMenus` 服务、原生会话菜单注册、`workspace.add`、`locale` 入口、8 语言 chip 关键字、目录选择 occupant、preload 桥 | 运行时交互 |
+| `npm test` | 用桩 React/primitives 执行工厂与组件渲染体；覆盖「有/无 `contextMenus`」两种场景；八本字典键集一致、值非空、`en` 无 CJK、`locale/*.json` meta 完整；求星行注册在 `plugins.detail.section`（`order < 90`）且按 `subject.pkg.name` 过滤；**chip 识别的静态契约**（`CHIP_ANCHORS` 仍在、子智能体锚点未丢、没有残留的 `CHIP_SELECTORS` 引用）与**行尾门**（`lib/client.js` 必须是 LF） | 外观、真实宿主行为、测量 effect（渲染体跑不到） |
+| `npm run check:instance` | 直接读当前实例 `app.asar`（路径优先级：`--asar` → `DSH_APP_ASAR` → `DSH_INSTALL_DIR` → 各平台常见安装路径）：primitives 导出、四个槽位名、三个顶栏 DOM 锚点与 lineage 槽、`workspaces` / `uiWorkspace` 方法（按代码实际调用抽取）、`contextMenus` 服务、原生行内菜单注册（会话 · 工作区）、`workspace.add`、`locale` 入口、8 语言 chip 关键字、chip 结构锚点、目录选择 occupant、preload 桥（项数以脚本输出为准，当前 19） | 运行时交互 |
 | `node tools/check-docs.mjs` | 文档相对链接与锚点（CI 里随 `npm test` 一起跑） | 文档内容正确性 |
 
 ## 发布前实机清单

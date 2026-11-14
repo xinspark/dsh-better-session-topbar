@@ -63,7 +63,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.2
 | 逐级自适应图标态 | 某一级被挤到读不出内容（可见宽度 < 80px ≈ 5 个汉字）→ 只收这一级；整条溢出 → 全部收成图标（防止被窗口边缘裁掉）。图标按级取：工作区＝文件夹、普通会话级＝会话字形、子智能体级＝原生 switcher 的上下双箭头；完整标题仍在悬停提示与可访问名里。窗口宽、只是标题超过该级上限时保留截断文本（比一个图标信息量大）。`/` 分隔始终保留 —— 图标态下层级顺序靠它读出来。 |
 | 逐级压缩 | 顶栏放不下时按固定次序让位：三枚原生 chip（子智能体 / 智能体团队 / 后台任务）先 `full → count`（文字换成 `(N)`）→ **面包屑整条收成图标**（统计数留着，长标题最不值钱）→ chip 再 `count → icon`。判据是实测的可用宽度，不记顶栏宽度做滞回 —— 标题变短、chip 消失后会自己展开回来。 |
 | 窄屏显示方式 | 插件详情页二选一：**面包屑模式**（默认，保留「工作区 / 会话」层级，收成图标后仍可逐级点开切换，代价是最窄时只剩图标、标题全文要悬停或点开才看得到）或**标题模式**（整行只留当前会话标题，子智能体会话保留「父 / 当前」，长标题更完整，代价是工作区与切换收进下拉、极窄时父级变成上下箭头图标）。两种选择都在同一个折叠点上生效，切换即时预览。 |
-| 三枚 chip 同构 | 子智能体 / 智能体团队 / 后台任务统一成「图标 · 文字 · (N) · 圆环 · 箭头」：12px/18 字号、`3px 7px` 内距、5px 间距、28px 高、14px 图标、12px 箭头、圆角与悬停填充一致；原生缺的补上（智能体团队补成员数与运行中圆环，圆环与官方 spinner 同相），原生多出来的归位（后台任务的运行圆点移到统计数之后）。 |
+| 三枚 chip 同构 | 子智能体 / 智能体团队 / 后台任务统一成「图标 · 文字 · (N) · 圆环 · 箭头」：12px/18 字号、`3px 7px` 内距、5px 间距、28px 高、14px 图标、12px 箭头、圆角与悬停填充一致；原生缺的补上（智能体团队补成员数与运行中圆环，圆环与官方 spinner 同相），原生多出来的归位（后台任务的运行圆点移到统计数之后）。0.2.2-rc.3 起官方把智能体团队移出顶栏，顶栏里实际是同构的两枚（见「已知限制」）。 |
 | 工作区下拉 | 工作区列表（含会话数元信息）、添加工作区（交给宿主目录选择，与侧栏 + 一致）、行内「更多」：重命名 / 删除工作区（宿主菜单，按权限显示）。 |
 | 会话下拉 | 当前工作区的会话列表（含相对时间元信息）、新建会话、行内「更多」：置顶 / 重命名 / 分支 / 复制 Session ID / 归档会话（宿主菜单，按权限显示）。 |
 | 原生一致的交互 | 下拉为自绘层，卡片沿用原生菜单 token（`--dsw-elevation-prominent`、`--dsw-radius-lg`、`--dsw-menu-surface-fill` + `--dsw-menu-backdrop-filter`、hover 填充 `--dsw-alias-interactive-bg-hover`）；行内度量为 min-height 40 / padding 8·10 / 14px·22px（与原生 `AccountMenu` 的 `[role=menuitem]` 一致；原生 `Menu.module.css` 更紧凑，本插件未跟随）。键盘/ARIA 与原生 `Menu` 同构：打开聚焦首行、`ArrowUp/Down`、`Home/End`、`Tab` 收起、`Esc` 收起并归还焦点。行内「更多」本体是**宿主的右键菜单**（`contextMenus` 服务）：条目、顺序、权限门控、快捷键键帽、重命名/删除对话框全由 ui-workspace 渲染；插件只传目标与坐标。 |
@@ -174,6 +174,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.2
 | 目录选择交互 | 插件**不接管、不自绘**：`workspace.add` → 宿主 occupant（native = 官方 renderless → 系统选择器；browse = 官方应用内面板）；槽空时才兜底 preload 桥 `__DSH_DIRECTORY_PICKER__` / `pickDirectory()` | 四种组合各点一次「添加工作区」：native 宿主应直接见系统对话框，browse 宿主应见官方应用内面板 |
 | 顶栏 DOM 锚点 | `header[data-window-drag]` + `nav:has(~ div .bst-crumbs)`（0.2.0 的 `data-conversation-*` 已移除） | 原生标题被隐藏、窄屏切换正常 |
 | primitives 组件 | `Modal` / `Button` / `Switch` / `*Regular` 图标（`Menu` / `Input` 已随自建菜单移除） | 错误对话框与插件设置页各点开一次 |
+| 原生 chip 识别 | 结构锚点 `CHIP_ANCHORS`（子智能体 = `aria-haspopup="dialog"`）+ 文案词表 `CHIP_HINTS` / `SWITCHER_HINTS`（8 语言）；team 的容器锚点 `[data-team-action]` 只对老内核有效 | `npm run check:instance` 的「chip 结构锚点」「chip 文案关键字」两项应 PASS；实机看三枚 chip 是否仍有图标 / 计数 / 圆环 |
 | 文案键 | 插件自有文案（添加工作区 / 新会话）；行内菜单文案属于宿主命名空间 | 中英各看一次 |
 
 ## 已知限制
@@ -182,7 +183,8 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.2
 - **插件自有文案**：8 种官方语言全量覆盖（中/英/日/德/西/法/葡/俄），跟随 DSH 语言实时切换。
 - **6 种新增语言是机器翻译**（日/德/西/法/葡/俄，人工只做了粗校），个别措辞可能不自然或不符合你的术语习惯 —— 欢迎提 Issue 或 PR 纠正：文案在 `lib/client.js` 的 `BST_JA` / `BST_DE` / `BST_ES` / `BST_FR` / `BST_PT` / `BST_RU`，包标题与描述在 `locale/*.json`。中/英为人工撰写。
 - **npm 包页面的 README 相对链接**：registry 渲染的 README 里，指向 `docs/` 与截图的相对路径可能 404（GitHub 上正常）；以 GitHub 仓库页为准。
-- **三枚原生 chip 的装饰依赖官方文案识别**：已覆盖官方 0.2.2 的 8 种语言（中/英/日/德/西/法/葡/俄）；官方再新增语言时，把词干补进 `CHIP_HINTS` 即可（见 MAINTAINING §7）。面包屑本身与语言无关。
+- **原生 chip 的装饰分两层**：**结构锚点优先**（子智能体那枚认 `aria-haspopup="dialog"`，与语言无关；锚点命中不唯一时要求文案也对得上，宁可不装饰也不认错），**官方文案兜底**（后台任务那枚官方没给结构锚点，只能按 8 种语言的 `aria-label` 词干识别，官方新增语言时把词干补进 `CHIP_HINTS`，见 MAINTAINING §7）。面包屑本身与语言无关。
+- **0.2.2-rc.3 起顶栏只剩两枚 chip**：官方把「智能体团队」搬到子智能体树下方的任务板（`conversation.session.header.actions.subagent.footer`），顶栏里不再有那枚；插件的团队装饰只对更早的内核生效（`check:instance` 会把「已移出顶栏」作为结论打出来）。
 
 ## 贡献
 

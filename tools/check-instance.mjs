@@ -108,9 +108,15 @@ function openAsar(asarPath) {
 }
 
 // ---- 3. 期望值从插件自己身上抽取，不在脚本里抄第二份 ---------------------
+// 读插件源码：**必须归一化换行**。Windows 工作树是 CRLF，而发布包（git blob → npm tarball）
+// 是 LF —— 按行尾做的正则（`\n {12}\}`）在本地会静默失配，只在 CI/发布侧才成立。
+function pluginSource() {
+  const raw = fs.readFileSync(path.join(ROOT, 'lib', 'client.js'), 'utf8')
+  return raw.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n')
+}
 // 图标与组件：解析 lib/client.js 里 `require('...ui-primitives')` 的解构块。
 function pluginPrimitivesImports() {
-  const source = fs.readFileSync(path.join(ROOT, 'lib', 'client.js'), 'utf8')
+  const source = pluginSource()
   const at = source.indexOf("require('@deepseek-ai/dsh-client-ui-primitives')")
   if (at < 0) fail('lib/client.js no longer requires the primitives package')
   const open = source.lastIndexOf('{', at)
@@ -138,7 +144,7 @@ function primitivesExports(bundle) {
 // 先剔除注释（`http://` 里的 `//` 用「前一字符不是冒号」保护），
 // 于是删掉一处调用，对账表自动跟着缩，不会留下过期期望。
 function pluginServiceCalls() {
-  const source = fs.readFileSync(path.join(ROOT, 'lib', 'client.js'), 'utf8')
+  const source = pluginSource()
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/(^|[^:])\/\/[^\n]*/g, '$1')
   const pick = (owner) => {
@@ -150,10 +156,39 @@ function pluginServiceCalls() {
   return { workspaces: pick('workspaces'), uiWorkspace: pick('uiWorkspace') }
 }
 
+// chip 结构锚点：读 lib/client.js 的 CHIP_ANCHORS 字面量（selector + trustUnique），
+// 期望值同样只有一份 —— 插件改锚点，对账表自动跟着改，不会留下过期的第二份。
+function pluginChipAnchors() {
+  const source = pluginSource()
+  const block = source.match(/const CHIP_ANCHORS = \{([\s\S]*?)\n {10,14}\}\n/)
+  if (!block) fail('lib/client.js no longer declares CHIP_ANCHORS')
+  const groups = {}
+  for (const line of block[1].split('\n')) {
+    // selector 的引号可能是单引号或双引号，值里还带着另一种引号（'button[aria-haspopup="dialog"]'），
+    // 所以两种引号各试一次，不能用一个 `[^'"]+` 了事（会截在内部的引号上）。
+    const pair = line.match(/selector:\s*'([^']*)'/) ?? line.match(/selector:\s*"([^"]*)"/)
+    if (pair === null) continue
+    const key = line.match(/(\w+):\s*\{/)
+    if (key === null) continue
+    groups[key[1]] = { selector: pair[1], trustUnique: /trustUnique:\s*true/.test(line) }
+  }
+  return groups
+}
+
+// 把 CSS 选择器里最具体的那条属性判据翻译成「源码里应出现什么」。
+// 只处理我们在用的两种形态：`[attr="value"]` 与裸 `[attr]`（`button[...]` / `.cls[...]` 都认）。
+function anchorProbe(selector) {
+  const pair = selector.match(/\[\s*([a-zA-Z-]+)\s*=\s*"([^"]+)"\s*\]/)
+  if (pair !== null) return { attr: pair[1], value: pair[2] }
+  const bare = selector.match(/\[\s*([a-zA-Z-]+)\s*\]/)
+  if (bare !== null) return { attr: bare[1], value: null }
+  return null
+}
+
 // chip 文案关键字：直接读 lib/client.js 的 CHIP_HINTS / SWITCHER_HINTS 字面量。
 // 官方改译文时这里会先红，而不是等到界面上三枚 chip 突然不被装饰。
 function pluginChipHints() {
-  const source = fs.readFileSync(path.join(ROOT, 'lib', 'client.js'), 'utf8')
+  const source = pluginSource()
   const block = source.match(/const CHIP_HINTS = \{([\s\S]*?)\}/)
   if (!block) fail('lib/client.js no longer declares CHIP_HINTS')
   const groups = {}
@@ -260,10 +295,15 @@ function main() {
     '服务 contextMenus（open(target, point)）',
     `${cmPath}（active / open / close 由该包 provide）`,
   )
+  // 行内菜单的两组目标来自同一张注册表（ui-workspace 的 ctx.contextMenus.register）：
+  // 会话组走 registerSessionMenus（target `session`），工作区组直接注册（target `workspace`）。
+  // 合成一项核对，避免同一件事拆成两条以后各自漂移。
   record(
-    /registerSessionMenus/.test(uiWs) && /target\s*:\s*[`"']session[`"']/.test(uiWs),
-    '原生会话菜单注册（置顶/重命名/分支/复制/归档）',
-    uiWsPath,
+    /registerSessionMenus/.test(uiWs)
+      && /target\s*:\s*[`"']session[`"']/.test(uiWs)
+      && /target\s*:\s*[`"']workspace[`"']/.test(uiWs),
+    '原生行内菜单注册（会话 · 工作区）',
+    `${uiWsPath}（session：置顶/重命名/分支/复制/归档 · workspace：重命名/删除）`,
   )
   record(uiWs.includes('workspace.add'), '命令 workspace.add', uiWsPath)
   record(
@@ -272,17 +312,29 @@ function main() {
     `${localePath}（translate=${locale.includes('translate')} register=${locale.includes('register')}）`,
   )
 
-  // ⑤ chip 文案关键字：8 种语言的词干必须在对应的官方包里还找得到。
+  // ⑤ chip 识别：结构锚点 + 文案关键字。两者都必须在对应的官方包里还找得到。
   //    真实字符串是从官方字典里抽的，这里只做「包含」核对（大小写不敏感）。
   const hints = pluginChipHints()
+  const anchors = pluginChipAnchors()
   const subagentPath = `${P}dsh-client-ui-subagent/lib/client.js`
   const jobsPath = `${P}dsh-client-ui-jobs/lib/client.js`
-  const teamPath = `${P}dsh-experimental-client-ui-agent-team/lib/client.js`
-  const chipSources = {
-    sub: (asar.read(subagentPath) ?? '').toLowerCase(),
-    jobs: (asar.read(jobsPath) ?? '').toLowerCase(),
-    team: (asar.read(teamPath) ?? '').toLowerCase(),
+  // agent-team 的包名在 0.2.2-rc.3 去掉了 experimental 前缀（旧名保留作兜底，老实例照样能核）
+  const teamPaths = [`${P}dsh-client-ui-agent-team/lib/client.js`, `${P}dsh-experimental-client-ui-agent-team/lib/client.js`]
+  const teamPath = teamPaths.find((p) => asar.read(p) !== null) ?? teamPaths[0]
+  const rawSources = {
+    sub: asar.read(subagentPath) ?? '',
+    jobs: asar.read(jobsPath) ?? '',
+    team: asar.read(teamPath) ?? '',
   }
+  const chipSources = {
+    sub: rawSources.sub.toLowerCase(),
+    jobs: rawSources.jobs.toLowerCase(),
+    team: rawSources.team.toLowerCase(),
+  }
+  // rc.3 起官方把「智能体团队」从顶栏挪到 `…header.actions.subagent.footer`（渲染任务板）：
+  // 包还在，但顶栏里已经没有那枚 chip。判据是「它是否还注册进 header.actions 本身」。
+  const teamStillInHeader = /name:\s*[`"']conversation\.session\.header\.actions[`"']/.test(rawSources.team)
+  const teamRelocated = rawSources.team !== '' && !teamStillInHeader
   const missingHints = []
   const skippedChips = []
   for (const key of Object.keys(hints.groups)) {
@@ -290,6 +342,8 @@ function main() {
     if (source === undefined) { missingHints.push(`${key}: 未知 chip`); continue }
     // 该 chip 的原生包没装（例如没启 agent-team）：跳过，不把「不存在的 UI」算成失败
     if (source === '') { skippedChips.push(key); continue }
+    // 已搬出顶栏的那枚不再要求顶栏文案（它的 t("trigger") 现在叫「任务板」，与 chip 无关）
+    if (key === 'team' && teamRelocated) { skippedChips.push('team（已移出顶栏）'); continue }
     for (const hint of hints.groups[key]) {
       if (!source.includes(hint.toLowerCase())) missingHints.push(`${key}: ${hint}`)
     }
@@ -306,6 +360,30 @@ function main() {
     missingHints.length === 0
       ? `${hintCount} 个 chip 词干 + ${hints.switcherHints.length} 个切换器词干，均在官方包里命中${skippedNote}`
       : `未命中：${missingHints.join('、')}${skippedNote}`,
+  )
+  // 结构锚点：语言无关的那一半。插件的 CHIP_ANCHORS 声明了哪个属性，官方包里就必须还有它。
+  const anchorMissing = []
+  const anchorOk = []
+  for (const [key, anchor] of Object.entries(anchors)) {
+    const probe = anchorProbe(anchor.selector)
+    if (probe === null) { anchorMissing.push(`${key}: 选择器无法翻译（${anchor.selector}）`); continue }
+    const source = chipSources[key]
+    if (source === undefined) { anchorMissing.push(`${key}: 未知 chip`); continue }
+    if (source === '') { anchorOk.push(`${key}=未安装`); continue }
+    // team 在 rc.3 已搬出顶栏 → 它的容器锚点自然不在顶栏包里，不算失败。
+    if (key === 'team' && teamRelocated) { anchorOk.push(`${key}=已移出顶栏（subagent.footer）`); continue }
+    const re = probe.value === null
+      ? new RegExp(`["'\`]?${probe.attr}["'\`]?\\s*[:=]`)
+      : new RegExp(`${probe.attr}["'\`]?\\s*[:=]\\s*["'\`]${probe.value}["'\`]`)
+    if (re.test(rawSources[key])) anchorOk.push(`${key}=${probe.attr}${probe.value === null ? '' : '=' + probe.value}`)
+    else anchorMissing.push(`${key}: ${probe.attr}${probe.value === null ? '' : '=' + probe.value}`)
+  }
+  record(
+    anchorMissing.length === 0,
+    'chip 结构锚点（不依赖语言）',
+    anchorMissing.length === 0
+      ? `${anchorOk.join(' · ')}（锚点出处：${subagentPath}）`
+      : `未命中：${anchorMissing.join('、')}`,
   )
 
   // ⑥ 「添加工作区」交给宿主的两条前提：

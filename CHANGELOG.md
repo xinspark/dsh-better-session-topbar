@@ -7,14 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- **`npm run check:instance` 在 DSH 会话里可以直接跑**：`tools/check-instance.mjs` 的实例发现新增 `DSH_INSTALL_DIR`（DSH 托管环境注入的「当前运行实例 app.asar」）优先于各平台硬编码候选路径，并同时接受 asar 文件与安装目录两种形态。此前本机实例装在多版本启动器的 `E:\FXS\APP\DSH NEXT\resources\app.asar`，不在候选列表里，只能手填 `--asar`；现在 `npm run check:instance` 开箱 **18/18 PASS**（`--asar` 与 `DSH_APP_ASAR` 仍最高优先，行为不变）。
-
 ### Changed
 
+- **原生 chip 的识别改成「结构锚点优先、文案兜底」**：新增 `CHIP_ANCHORS`，子智能体那枚改认官方 trigger 上的 `aria-haspopup="dialog"`（该槽里只有它带这个属性，与语言无关）；锚点命中**唯一**时不经文案直接采信，命中多个时必须文案也对得上，否则这一轮放弃装饰 —— conversation 的 ContextMeter 同样用 `aria-haspopup="dialog"`，宁可少装饰一枚也不认错人。缓存复用条件同步放宽为「文案匹配 **或** 仍命中锚点」，避免靠锚点认出来的那枚每轮被丢弃。后台任务那枚官方没给结构锚点（只有 `aria-expanded` + i18n `aria-label`），仍走文案。
+- **`check:instance` 新增「chip 结构锚点」一项**（期望值从 `lib/client.js` 的 `CHIP_ANCHORS` 抽取）；「原生会话菜单注册」并成「原生行内菜单注册（会话 · 工作区）」，同时核对 `target: session` 与 `target: workspace` 两组注册。现为 **19 项**。
+- **`check:instance` 修掉两处假绿、冒烟新增一条行尾门**：① agent-team 包名在 rc.3 改为 `dsh-client-ui-agent-team`，旧脚本只认带 `experimental` 的老名，于是把「契约变了」写成「未安装跳过：team」—— 现在两条路径都试，并把「已移出顶栏（改挂 `subagent.footer` 任务板）」作为结论打出来；② 读 `lib/client.js` 统一走归一化入口（去 BOM + CRLF→LF），此前按行尾写的正则在工作树失配、且 git 把整文件算成改动（`lib/client.js` 的行尾曾被写成 CRLF，仓库约定 LF）。③ `test/render-smoke.cjs` 新增断言：`lib/client.js` 出现 `\r\n` 即红 —— 行尾漂移从此在提交前就可见。
+- 文档同步：`docs/design.md` §2 改为两层识别 + rc.3 团队 chip 移出顶栏；`docs/reference/compatibility.md` 新增「官方顶栏自身的版本差异」表；README 中英的 chip 行、维护清单、已知限制更新；新增经验 07 / 08。
 - **版本基线元数据对齐 0.2.2-rc.3**：`package.json` 的 `dsh.verifiedAgainst` 从 `0.2.2-rc.1` 抬到 `0.2.2-rc.3`（与 `docs/reference/compatibility.md`、`MAINTAINING.md` §6 记录的 2.0.2 对账基线一致），README 中英的「验证基线」一行同步为 DSH NEXT 2.0.23-next / Harness 0.2.2-rc.3。
 - Issue 模板的两个占位版本号跟上现状：插件版本 `1.5.4` → `2.0.2`，DSH 版本 `2.0.22-next / 内核 0.2.2-rc.1` → `2.0.23-next / 内核 0.2.2-rc.3`。
+
+### Fixed
+
+- **`npm run check:instance` 在 DSH 会话里可以直接跑**：`tools/check-instance.mjs` 的实例发现新增 `DSH_INSTALL_DIR`（DSH 托管环境注入的「当前运行实例 app.asar」）优先于各平台硬编码候选路径，并同时接受 asar 文件与安装目录两种形态。此前本机实例装在多版本启动器的 `E:\FXS\APP\DSH NEXT\resources\app.asar`，不在候选列表里，只能手填 `--asar`；现在 `npm run check:instance` 开箱 **19/19 PASS**（`--asar` 与 `DSH_APP_ASAR` 仍最高优先，行为不变）。
 
 ## [2.0.2] - 2026-11-14
 

@@ -34,7 +34,7 @@ dsh web                       # 或 dsh --profile web
 
 ```sh
 npm test                      # 渲染冒烟 + 语言键集 + 文档链接（CI 同款）
-npm run check:instance        # 读当前实例 app.asar，逐项核对 18 项硬契约
+npm run check:instance        # 读当前实例 app.asar，逐项核对硬契约（项数以输出为准）
 npm run check:instance -- --asar "<path>/app.asar"   # 指定实例
 npm pack --dry-run            # 看发布包含哪些文件
 ```

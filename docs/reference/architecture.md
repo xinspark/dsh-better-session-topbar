@@ -81,9 +81,11 @@ rc.3 与 rc.4：team -20 / preset -10 / cost-meter 1 / subagent-catalog 10 / job
 | 9 | 行内「更多」 | 点「⋯」弹出宿主菜单 |
 | 10 | 打包与本地安装 | junction 安装时能解析 schemastery |
 
-## 7. `check:instance` 覆盖的 18 项
+## 7. `check:instance` 覆盖的对账项
 
 primitives 导出、四个槽位名、三个顶栏 DOM 锚点与 lineage 槽、`workspaces` 方法（按代码实际
-调用抽取）、`uiWorkspace` 方法、`contextMenus` 服务、原生会话菜单注册、`workspace.add`、
-`locale` 入口、8 语言 chip 文案关键字、宿主目录选择 occupant、preload 桥
-`__DSH_DIRECTORY_PICKER__`。期望值从 `lib/client.js` 自己抽取，不抄第二份。
+调用抽取）、`uiWorkspace` 方法、`contextMenus` 服务、原生行内菜单注册（会话 · 工作区两组
+target）、`workspace.add`、`locale` 入口、8 语言 chip 文案关键字、**chip 结构锚点**、宿主目录
+选择 occupant、preload 桥 `__DSH_DIRECTORY_PICKER__`。期望值从 `lib/client.js` 自己抽取
+（含 `CHIP_ANCHORS`），不抄第二份；**项数以脚本输出为准**（随清单增删，当前 19 项），
+文档里只记「核对了哪几类」，不维护第二份计数。
