@@ -121,6 +121,13 @@
   - **双向验证**：基线不动 → 零差异；人为改 5 处（kernel、删一个包、改 popups、改类名、把图标置 false）→ 精确报 5 条。
   - **顺带**：抽出 `tools/asar.mjs`（读取器 + 实例发现）给两个工具共用，`check-instance` 改为 import，仍 19/19。新工具初版把数据区偏移写成 `16 + jsonLen`，读 `package.json` 在 11999 处 JSON 解析失败 —— pickle 会 4 字节对齐补齐，正确起点是 `8 + headerPayload + 4`（已记进 `tools/asar.mjs` 注释）。
 
+- [x] **v2.0.3 发布（四侧取证，2026-11-15）**：内容 = chip 与面包屑图标回归官方、chip 识别改结构锚点优先、`check:topbar` 漂移检测、`check:instance` 扩到 19 项。
+  - **本地**：`package.json` = 2.0.3（`verifiedAgainst: 0.2.2-rc.3`）；`npm test` 通过（smoke 含 chip 静态契约 + 行尾门 + 26 个文档链接）；`check:instance` **19/19**；`check:topbar` 零差异；`npm pack` 2.0.3（**17 files**，118.0 kB tarball，unpacked 319,993 B，shasum `5ac1b417…`）；annotated tag `v2.0.3` → 发布提交 `fb4cc2e`；profile 经 junction 解析到 2.0.3。
+  - **GitHub**：`main` = `fb4cc2e`（快进自 `69ae521`，7 个提交）；tag `v2.0.3` 已推；Release <https://github.com/xinspark/dsh-better-session-topbar/releases/tag/v2.0.3>（非 draft / 非 prerelease，`publishedAt` 2026-11-15T00:35:49Z，正文取 CHANGELOG 2.0.3 节）；CI run `43658941899` success；publish run `43658961930` success，日志含 `npm notice package size: 118.0 kB` / `total files: 17` / `Signed provenance statement` / `+ dsh-better-session-topbar@2.0.3`。
+  - **npm**：`dist-tags.latest = 2.0.3`（`2026-11-15T00:38:12.506Z`）；`dist.shasum = 5ac1b4177fb23768b45fd2d63c72e81b2bbbd4c0`（与本地 `npm pack` 一致）；`dist.integrity = sha512-igDzY+Wf01/xvFH6qKNGQ0QfyXePex1eA9ByVUQXLBxnId94bnF4af7lnns1iaggETEMHPeNZTbTVUnwaA89gg==`；`fileCount 17` / `unpackedSize 319993`；provenance 见 `/-/npm/v1/attestations/…@2.0.3`（**2 条**：publish spec + `https://slsa.dev/provenance/v1`，另有 2 个 signatures）。下载 tarball 核对 **17/17 文件**，`lib/client.js` sha256 `514a119a…` 与 `v2.0.3` blob **逐字节相同**。
+  - **插件市场**：**不动** —— 目录条目无 version 字段，`url` / `name` / `category` 未变，描述仍准确。
+  - **两处观察**：① registry 元数据延迟约 2 分钟（轮询 6 次、约 2 分 20 秒后 `latest` 才变 2.0.3），与历史记录一致；② 顶层 `dist-tags` 文档里的 `attestations` 一度读到 `false`，改查**版本级端点** `/dsh-better-session-topbar/2.0.3` 才拿到 `{ url, provenance.predicateType }` —— 判 provenance 不要只看顶层字段。
+
 > **发版通用纪律**：四侧一律以官方源直查为准（npm 用 `registry.npmjs.org`，不要用镜像的 404 判「没发出去」；GitHub 用 API 读 ref/tag/Release/run，别靠页面缓存）。本机镜像与代理配置见私有环境记录。
 
 ## 7. 计划与决策的归属
