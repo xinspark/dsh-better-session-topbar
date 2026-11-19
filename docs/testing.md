@@ -34,3 +34,4 @@
 | 2.0.1（2026-11-06） | 2.0.22-next / 0.2.2-rc.1 | `npm test` 通过；`check:instance` 18/18 | 求星行改挂 `plugins.detail.section`（order 80 < 市场 90）；四侧取证见 `MAINTAINING.md` §6 | 本页 + `CHANGELOG.md` |
 | 2.0.2（2026-11-14） | 2.0.23-next / 0.2.2-rc.3 | `npm test` 通过（含原生触发绑定场景）；`check:instance` **18/18** | 「⋯」走原生 `getTriggerProps`；实例更新零兼容性迁移，实时 Slots 两项 active | 本页 + `CHANGELOG.md` |
 | 2.0.3（2026-11-15） | 2.0.23-next / 0.2.2-rc.3 | `npm test` 通过（含 chip 静态契约 + 行尾门）；`check:instance` **19/19**；`check:topbar` 零差异 | chip 图标回归官方（不再自绘/不再挪子节点）、面包屑三级改用官方组件（子智能体级 `IconUsersOutlineRegular`）；行内「⋯」与面包屑由所有者实机确认 | 本页 + `CHANGELOG.md` |
+| 2.0.4（2026-11-19） | 2.0.24-next / 0.2.2-rc.5 | `npm test` 通过；`check:instance` **19/19**；`check:topbar` 差异 5 处（3 身份 + 2 CSS 前缀），判读后推基线 → 零差异 | 实例更新对账：接触面 16 包逐文件 sha256 仅 `dsh-client-modules` 的 commit 常量变化，插件代码零改动；纯声明式抬基线 | 本页 + `CHANGELOG.md` |

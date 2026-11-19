@@ -1,13 +1,13 @@
 {
   "instance": {
-    "shell": "2.0.23-next",
-    "kernel": "0.2.2-rc.3",
-    "asarSha": "003b66e87e2e7f78"
+    "shell": "2.0.24-next",
+    "kernel": "0.2.2-rc.5",
+    "asarSha": "3bccf05a97aeb6be"
   },
   "headerDom": {
     "windowDrag": true,
-    "headerActionsClass": "aB2X2W",
-    "crumbsClass": "aB2X2W"
+    "headerActionsClass": "KK6qrW",
+    "crumbsClass": "KK6qrW"
   },
   "slots": {
     "conversation.session.header.actions": {

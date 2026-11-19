@@ -121,6 +121,12 @@
   - **双向验证**：基线不动 → 零差异；人为改 5 处（kernel、删一个包、改 popups、改类名、把图标置 false）→ 精确报 5 条。
   - **顺带**：抽出 `tools/asar.mjs`（读取器 + 实例发现）给两个工具共用，`check-instance` 改为 import，仍 19/19。新工具初版把数据区偏移写成 `16 + jsonLen`，读 `package.json` 在 11999 处 JSON 解析失败 —— pickle 会 4 字节对齐补齐，正确起点是 `8 + headerPayload + 4`（已记进 `tools/asar.mjs` 注释）。
 
+- [x] **实例更新对账：0.2.2-rc.3 → 0.2.2-rc.5（壳 2.0.23-next → 2.0.24-next，2026-11-19）**：结论 **插件代码零改动**，纯声明式抬基线 → 2.0.4。
+  - 认版本：运行实例 `E:\FXS\APP\DSH NEXT\resources\app.asar`（01:47 更新）的壳 `2.0.24-next`、内核 `0.2.2-rc.5`；`DSH-NUL/versions/` 下仍只有 `2.0.23-next` 目录（原地升级，别拿目录名当版本）。
+  - `check:topbar` 首轮报 **5 处差异**：`instance.shell` / `instance.kernel` / `instance.asarSha`（`003b66e8…` → `3bccf05a…`）+ `headerActionsClass` / `crumbsClass`（`aB2X2W` → `KK6qrW`）。**槽位与注册者、chip 结构锚点、activity 图标、计数标记、i18n 键、顶栏 DOM 锚点、15 个 primitives 图标全部未变** —— 后两项是 CSS-Modules 重建前缀，属构建噪声而非契约变化。
+  - **包级对账（不依赖旧 asar）**：从 npm 取 `0.2.2-rc.3` 与 `0.2.2-rc.5` 两侧 tarball，对接触面 16 包逐文件 sha256 比（跳过 `package.json`）——**只有 `dsh-client-modules/lib/index.js` 一个文件不同**，内容是构建 commit 常量（`const commit = "6b729fe"` → `"3f85d88"`，无语义）。其余 15 包逐字节相同（含 conversation / subagent / primitives / locale / theme）。
+  - **一条方法学教训**：asar 里的包与 npm tarball **同一版本号也逐字节不同**（conversation 704,499 vs 704,183 字节，前缀与 commit 不同）——桌面壳是另一条构建流水线。所以"用 tarball 对账"必须**双侧都取 tarball**（rc.3 vs rc.5），拿 asar 对 tarball 会把重建噪声当成漂移。见 `docs/experience/10-asar-不等于-tarball.md`。
+  - 门：`npm test` 通过（26 文档）；`check:instance` **19/19**；`check:topbar` 推基线后零差异。
 - [x] **v2.0.3 发布（四侧取证，2026-11-15）**：内容 = chip 与面包屑图标回归官方、chip 识别改结构锚点优先、`check:topbar` 漂移检测、`check:instance` 扩到 19 项。
   - **本地**：`package.json` = 2.0.3（`verifiedAgainst: 0.2.2-rc.3`）；`npm test` 通过（smoke 含 chip 静态契约 + 行尾门 + 26 个文档链接）；`check:instance` **19/19**；`check:topbar` 零差异；`npm pack` 2.0.3（**17 files**，118.0 kB tarball，unpacked 319,993 B，shasum `5ac1b417…`）；annotated tag `v2.0.3` → 发布提交 `fb4cc2e`；profile 经 junction 解析到 2.0.3。
   - **GitHub**：`main` = `fb4cc2e`（快进自 `69ae521`，7 个提交）；tag `v2.0.3` 已推；Release <https://github.com/xinspark/dsh-better-session-topbar/releases/tag/v2.0.3>（非 draft / 非 prerelease，`publishedAt` 2026-11-15T00:35:49Z，正文取 CHANGELOG 2.0.3 节）；CI run `43658941899` success；publish run `43658961930` success，日志含 `npm notice package size: 118.0 kB` / `total files: 17` / `Signed provenance statement` / `+ dsh-better-session-topbar@2.0.3`。

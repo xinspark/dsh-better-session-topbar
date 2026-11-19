@@ -27,7 +27,7 @@
 
 支持 **Windows · macOS · Linux**（DSH Web GUI）——纯 JavaScript，无原生依赖，分发无需构建步骤。
 
-> 验证基线：**DSH NEXT 2.0.23-next（内置 DeepSeek Harness 0.2.2-rc.3）** 与 `dsh web`。行内「更多」菜单依赖 0.2.2-rc.1 起的 `contextMenus` 服务；更早的内核（0.2.1-rc.4 / 0.2.1-rc.3 / 0.2.1-rc.2 / 0.2.0-rc.2）上面包屑与两个下拉照常工作，只是行尾不显示「⋯」（侧栏仍是完整入口）。其它版本未经验证。
+> 验证基线：**DSH NEXT 2.0.24-next（内置 DeepSeek Harness 0.2.2-rc.5）** 与 `dsh web`。行内「更多」菜单依赖 0.2.2-rc.1 起的 `contextMenus` 服务；更早的内核（0.2.1-rc.4 / 0.2.1-rc.3 / 0.2.1-rc.2 / 0.2.0-rc.2）上面包屑与两个下拉照常工作，只是行尾不显示「⋯」（侧栏仍是完整入口）。其它版本未经验证。
 
 ## 安装
 
@@ -38,7 +38,7 @@
 dsh plugin --profile web add dsh-better-session-topbar
 
 # 从 GitHub 安装（等价；可锁 tag 或 commit）
-dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.3
+dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.4
 ```
 
 - **建议锁定 commit**：GitHub 安装拉取的是仓库源码，tag 之后的新推送不会自动影响已安装版本；如需把运行内容严格固定到某个提交，用 `github:xinspark/dsh-better-session-topbar#<commit-sha>`（官方文档推荐做法）。
@@ -46,7 +46,7 @@ dsh plugin --profile web add github:xinspark/dsh-better-session-topbar#v2.0.3
 
   ```sh
   dsh plugin --profile web add ./dsh-better-session-topbar
-  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.3.tgz
+  dsh plugin --profile web add ./dsh-better-session-topbar-2.0.4.tgz
   ```
 
 然后启动 Web UI：`dsh web`（或 `dsh --profile web`）。首次 `add` 会自动用 `@deepseek-ai/dsh-base` 初始化 profile。

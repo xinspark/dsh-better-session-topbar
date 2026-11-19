@@ -6,9 +6,9 @@
 
 | 项 | 值 |
 | --- | --- |
-| 插件版本 | **2.0.3**（2026-11-15 发布） |
-| DSH NEXT | **2.0.23-next**（2026-11-14 实例更新；版本目录名仍是 `2.0.22-next`，属原地升级） |
-| Harness 内核 | **0.2.2-rc.3** |
+| 插件版本 | **2.0.4**（2026-11-19 发布） |
+| DSH NEXT | **2.0.24-next**（2026-11-19 实例更新；`versions/` 里的目录名仍是 `2.0.23-next`，属原地升级） |
+| Harness 内核 | **0.2.2-rc.5** |
 | 实机环境 | Windows · DSH NEXT 桌面 · profile 通过 junction 链接本仓库 |
 
 > 认版本别看目录名：`app.asar!/package.json` 的 `version` 是**桌面壳**，内核在
@@ -18,7 +18,8 @@
 
 | DSH NEXT / 内核 | 面包屑与下拉 | 行内「⋯」 | 说明 |
 | --- | --- | --- | --- |
-| 2.0.23-next / 0.2.2-rc.3 | ✅ | ✅ | 当前验证基线；`check:instance` 18/18，「⋯」走原生 `getTriggerProps` |
+| 2.0.24-next / 0.2.2-rc.5 | ✅ | ✅ | 当前验证基线；`check:instance` 19/19，`check:topbar` 结构零漂移（只有重建前缀变化） |
+| 2.0.23-next / 0.2.2-rc.3 | ✅ | ✅ | 同一套契约；`check:instance` 19/19，「⋯」走原生 `getTriggerProps` |
 | 2.0.22-next / 0.2.2-rc.1 | ✅ | ✅ | 同一套契约；无 `useContextMenu` 根 prop，走自绘手势回退 |
 | 2.0.21-next / 0.2.1-rc.4 | ✅ | ❌ | 无 `contextMenus` 服务，不渲染「⋯」 |
 | 2.0.20 / 0.2.1-rc.3 | ✅ | ❌ | 同上 |
@@ -30,6 +31,7 @@
 
 | 内核 | 顶栏里的 chip | 插件怎么认 |
 | --- | --- | --- |
+| 0.2.2-rc.5 | 与 0.2.2-rc.3 **结构相同**（子智能体、后台任务；智能体团队在 `…subagent.footer` 的任务板）：接触面 16 个包逐文件 sha256 无差异，只有 CSS-Modules 前缀这类重建噪声 | 同 rc.3：子智能体用结构锚点 `aria-haspopup="dialog"`，后台任务用文案兜底 |
 | 0.2.2-rc.3 | 子智能体、后台任务（**智能体团队已移出顶栏**，改挂 `conversation.session.header.actions.subagent.footer` 的任务板） | 子智能体优先用结构锚点 `aria-haspopup="dialog"`，后台任务用文案兜底 |
 | 0.2.2-rc.1 及更早 | 子智能体、智能体团队、后台任务 | 团队用 `[data-team-action]` 容器锚点，其余文案兜底 |
 

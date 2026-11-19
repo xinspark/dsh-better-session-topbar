@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.4] - 2026-11-19
+
+### Changed
+
+- **版本基线抬到 DSH NEXT 2.0.24-next / Harness 0.2.2-rc.5**（`package.json` 的 `dsh.verifiedAgainst`、README 中英「验证基线」、Issue 模板占位、`docs/reference/compatibility.md` 同步）。对账结论：**插件代码零改动** —— 本插件接触面 16 个官方包（conversation / subagent / agent-preset / agent-team / jobs / sidebar-terminal / primitives / locale / context-menu / workspace / plugin-manager / theme / sidebar-right / cordis-client-runner / client-modules / layout）在 `0.2.2-rc.3` → `0.2.2-rc.5` 之间逐文件 sha256 只有一个差异：`dsh-client-modules/lib/index.js` 里的构建 commit 常量（`6b729fe` → `3f85d88`）。
+- **`tools/baseline/topbar.json` 推新基线**：`check:topbar` 报的 5 处差异里，3 处是实例身份（壳 / 内核 / asar sha），2 处是 CSS-Modules 前缀重建噪声（`aB2X2W` → `KK6qrW`）；槽位与注册者（`包#id@order`）、chip 结构锚点、activity 图标、计数标记、i18n 键、顶栏 DOM 锚点、15 个 primitives 图标**全部未变**。`check:instance` **19/19 PASS**。
+
 ## [2.0.3] - 2026-11-15
 
 ### Added
