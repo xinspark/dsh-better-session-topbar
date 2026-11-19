@@ -121,6 +121,12 @@
   - **双向验证**：基线不动 → 零差异；人为改 5 处（kernel、删一个包、改 popups、改类名、把图标置 false）→ 精确报 5 条。
   - **顺带**：抽出 `tools/asar.mjs`（读取器 + 实例发现）给两个工具共用，`check-instance` 改为 import，仍 19/19。新工具初版把数据区偏移写成 `16 + jsonLen`，读 `package.json` 在 11999 处 JSON 解析失败 —— pickle 会 4 字节对齐补齐，正确起点是 `8 + headerPayload + 4`（已记进 `tools/asar.mjs` 注释）。
 
+- [x] **v2.0.4 发布（四侧取证，2026-11-19）**：内容 = 对齐 DSH `0.2.2-rc.5`（壳 2.0.24-next），**插件代码零改动**，纯声明式抬基线。
+  - **本地**：`package.json` = 2.0.4（`verifiedAgainst: 0.2.2-rc.5`）；`npm test` 通过（27 个文档链接）；`check:instance` **19/19**；`check:topbar` 零差异；`npm pack` **17 files**，118.4 kB tarball，unpacked 321.1 kB，shasum `75a0efb3124847aa52976636f454080e8c0013bc`；annotated tag `v2.0.4` → 发布提交 `680def3`；profile 经 junction 解析到 2.0.4。
+  - **GitHub**：`main` = `680def3`（快进自 `82ea11f`）；tag `v2.0.4` 已推；Release <https://github.com/xinspark/dsh-better-session-topbar/releases/tag/v2.0.4>（非 draft / 非 prerelease，`publishedAt` 2026-11-19T02:00:37Z，正文取 CHANGELOG 2.0.4 节）；CI run `44441085223` success；publish run `44441125298` success，日志含 `npm notice package size: 118.4 kB` / `total files: 17` / `Signed provenance statement` / `+ dsh-better-session-topbar@2.0.4`。
+  - **npm**：版本级端点 `/dsh-better-session-topbar/2.0.4` 200 → `dist.shasum = 75a0efb3124847aa52976636f454080e8c0013bc`（与本地 `npm pack` 一致）、`dist.integrity = sha512-JqZCHjeocU6E0/yWvKws140Mw95d8rmd6+H7pB2PTLSiyLoAuVI4bVbbAs2uMoTt2W2DF5b5uNsDbc9P4nHpJg==`、`fileCount 17` / `unpackedSize 321133`、provenance `https://slsa.dev/provenance/v1`；`dist-tags.latest = 2.0.4`（原始 registry 直查）。下载 tarball 核对 **17/17 文件**与 tag blob 逐字节相同，`lib/client.js` sha256 `514a119a…`（与 2.0.3 相同 —— 这次代码确实没动）。
+  - **插件市场**：目录条目 `data/plugins/xinspark__dsh-better-session-topbar.yml` 的 `url` / `name` / `category` 未变，目录**没有 version 字段**，描述仍与功能一致；**本轮不改**，无需 PR。
+  - **一处观察（新增）**：`npm view dsh-better-session-topbar version` 在发布后 3 分钟仍报 `2.0.3`（8 次轮询、160 秒），而原始 registry 的 `dist-tags` 已是 `2.0.4`，版本级端点也 200 —— `npm view` 的输出受本地/代理 HTTP 缓存影响，**判发布结果要看原始 registry**，别用 `npm view` 当唯一信号。
 - [x] **实例更新对账：0.2.2-rc.3 → 0.2.2-rc.5（壳 2.0.23-next → 2.0.24-next，2026-11-19）**：结论 **插件代码零改动**，纯声明式抬基线 → 2.0.4。
   - 认版本：运行实例 `E:\FXS\APP\DSH NEXT\resources\app.asar`（01:47 更新）的壳 `2.0.24-next`、内核 `0.2.2-rc.5`；`DSH-NUL/versions/` 下仍只有 `2.0.23-next` 目录（原地升级，别拿目录名当版本）。
   - `check:topbar` 首轮报 **5 处差异**：`instance.shell` / `instance.kernel` / `instance.asarSha`（`003b66e8…` → `3bccf05a…`）+ `headerActionsClass` / `crumbsClass`（`aB2X2W` → `KK6qrW`）。**槽位与注册者、chip 结构锚点、activity 图标、计数标记、i18n 键、顶栏 DOM 锚点、15 个 primitives 图标全部未变** —— 后两项是 CSS-Modules 重建前缀，属构建噪声而非契约变化。
